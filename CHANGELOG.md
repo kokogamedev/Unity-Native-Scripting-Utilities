@@ -25,3 +25,13 @@ The format adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), 
 - Add more examples and test scenes that demonstrate the various utilities while implementing custom testing solution.
 
 ---
+
+## [0.9.1] - 2026-04-10
+
+### Changed
+- Introduced new `IHaveMutableID<T>` and `IHaveMutableGuid<T>` interfaces to supplant the old `IHaveID<T>` and `IHaveGuid<T>` interfaces in order to support immutable/mutable IDs. Created new `IHaveID<T>` and `IHaveGuid<T>` interfaces that simply store IDs and implement `IEquatable<T>` (the immutable ID versions), having their mutable counterparts implement them.
+- Adjusted the `GenerateID` methods for `IHaveMutableID<T>` and `IHaveMutableGuid<T>` interfaces to return the IDs they generate (`int` and `Guid` types, respectively).
+- Added an overload for `IHaveMutableID<T>.GenerateID` method that accepts no parameters in the event the string name had been previously cached in place of passing an unnecessary string and incurring a performance impact.
+
+### Chores
+- Small refactoring of the FNV1a hash function implementation in `ComputeFNV1aHash` extension method - no logic impact.

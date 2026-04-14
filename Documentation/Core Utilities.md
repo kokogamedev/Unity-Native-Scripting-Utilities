@@ -7,8 +7,10 @@ The **Core Utilities** module provides foundational tools and helpers for a vari
 ## 1. `PsigenVision` Namespace
 
 ### Classes/Interfaces:
-- **`IHaveGuid<T>`**
-- **`IHaveID<T>`**
+- **`IHaveGuid<T>`** *(Immutable GUID-based objects)*
+- **`IHaveMutableGuid<T>`** *(Mutable GUID-based objects)*
+- **`IHaveID<T>`** *(Immutable ID-based objects)*
+- **`IHaveMutableID<T>`** *(Mutable ID-based objects)*
 - **`IUnityComponent`**
 
 ---
@@ -16,23 +18,57 @@ The **Core Utilities** module provides foundational tools and helpers for a vari
 ### `IHaveGuid<T>`
 
 #### Overview
-The **`IHaveGuid<T>`** interface defines a unique identifier (`Guid`) for its implementations. It ensures that objects can generate and compare globally unique identifiers.
+The **`IHaveGuid<T>`** interface provides a contract for immutable GUID identifiers, ensuring uniquely identifiable objects. As the GUID is immutable, it prevents changes after being set (e.g., via a constructor or factory).
 
 #### Members
 - **Properties**:
-	- `Guid ID`: The unique identifier for the object.
-- **Methods**:
-	- `void GenerateID()`: Generates a new `Guid` instance for the object.
+    - `Guid ID`: The unique identifier for the object.
+- **Implementation**:
+    - The implementer must define the `ID` property initialized with an immutable GUID (via constructor/factory).
+    - Equality comparison (via `IEquatable<T>`) ensures that objects of the same type have the same GUID.
 
 #### Example Usage
 ```c#
 public class ExampleClass : IHaveGuid<ExampleClass>
 {
+    public Guid ID { get; }
+
+    public ExampleClass()
+    {
+        ID = Guid.NewGuid(); // GUID is immutable
+    }
+
+    public bool Equals(ExampleClass other) => other?.ID == this.ID;
+
+    public override int GetHashCode() => ID.GetHashCode();
+}
+```
+
+---
+
+### `IHaveMutableGuid<T>`
+
+#### Overview
+The **`IHaveMutableGuid<T>`** interface supplements `IHaveGuid<T>` by introducing methods to explicitly change (`generate`) the GUID when necessary (e.g., for new instances or dynamic settings).
+
+#### Members
+- **Properties**:
+    - `Guid ID`: The current identifier.
+- **Methods**:
+    - `Guid GenerateID()`: Regenerates the GUID and returns the new identifier.
+
+#### Example Usage
+```c#
+public class ExampleClass : IHaveMutableGuid<ExampleClass>
+{
     public Guid ID { get; private set; }
 
-    public void GenerateID()
+    public ExampleClass() { GenerateID(); }
+
+    public Guid GenerateID()
     {
         ID = Guid.NewGuid();
+        return ID;
     }
 
     public bool Equals(ExampleClass other) => other?.ID == this.ID;
@@ -46,28 +82,73 @@ public class ExampleClass : IHaveGuid<ExampleClass>
 ### `IHaveID<T>`
 
 #### Overview
-The **`IHaveID<T>`** interface represents objects that use integer-based identifiers, typically derived from a string name (e.g., hash values).
+The **`IHaveID<T>`** interface defines immutable integer-based unique identifiers. IDs are typically generated using deterministic hashing functions like **FNV-1a** from a given string input.
 
 #### Members
 - **Properties**:
-	- `int ID`: The integer identifier for the object.
-- **Methods**:
-	- `void GenerateID(string name)`: Computes an integer identifier using techniques such as hashing.
+    - `int ID`: The unique identifier for the object.
+- **Implementation**:
+    - The implementer must ensure the ID is immutable.
 
 #### Example Usage
 ```c#
 public class ExampleClass : IHaveID<ExampleClass>
 {
-    public int ID { get; private set; }
+    public int ID { get; }
 
-    public void GenerateID(string name)
+    public ExampleClass(string name)
     {
-        ID = name.ComputeFNV1aHash();
+        ID = name.ComputeFNV1aHash(); // Generates immutable ID
     }
 
     public bool Equals(ExampleClass other) => other?.ID == this.ID;
 
-    public override int GetHashCode() => ID;
+    public override int GetHashCode() => ID.GetHashCode();
+}
+```
+
+---
+
+### `IHaveMutableID<T>`
+
+#### Overview
+The **`IHaveMutableID<T>`** extends `IHaveID<T>` by offering mechanisms to both **define an initial identifier based on input** and modify the identifier dynamically.
+
+#### Members
+- **Properties**:
+    - `int ID`: The current identifier.
+- **Methods**:
+    - `int GenerateID(string name)`: Computes the ID based on the given string name and assigns it.
+    - `int GenerateID()`: Overload to regenerate the ID without passing the name (if cached internally).
+
+#### Example Usage
+```c#
+public class ExampleClass : IHaveMutableID<ExampleClass>
+{
+    public int ID { get; private set; }
+    private string _cachedName;
+
+    public ExampleClass(string name)
+    {
+        _cachedName = name;
+        GenerateID(name);
+    }
+
+    public int GenerateID(string name)
+    {
+        ID = name.ComputeFNV1aHash();
+        return ID;
+    }
+
+    public int GenerateID()
+    {
+        ID = _cachedName.ComputeFNV1aHash(); // Uses previously cached name
+        return ID;
+    }
+
+    public bool Equals(ExampleClass other) => other?.ID == this.ID;
+
+    public override int GetHashCode() => ID.GetHashCode();
 }
 ```
 
@@ -76,12 +157,21 @@ public class ExampleClass : IHaveID<ExampleClass>
 ### `IUnityComponent`
 
 #### Overview
-The **`IUnityComponent`** interface acts as a Unity-specific abstraction, allowing direct access to `GameObject` and `Transform` properties.
+The **`IUnityComponent`** interface captures GameObject and Transform properties for Unity-specific entities without requiring inheritance from `Component`.
 
 #### Members
 - **Properties**:
-	- `GameObject gameObject`: Exposes the associated GameObject.
-	- `Transform transform`: Exposes the associated Transform.
+    - `GameObject gameObject`: Reference to the GameObject containing this component.
+    - `Transform transform`: Reference to the Transform of the GameObject.
+
+#### Example Usage
+```c#
+public class ExampleComponent : MonoBehaviour, IUnityComponent
+{
+    public GameObject gameObject => base.gameObject;
+    public Transform transform => base.transform;
+}
+```
 
 ---
 

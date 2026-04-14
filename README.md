@@ -19,7 +19,7 @@ Welcome to **PsigenVision's Unity Native C# Utilities**, a growing suite of util
 Here’s a peek into what this library offers:
 
 ### 1. **Core Utilities**
-- Unified interfaces for `Guid` and ID-based unique identifiers.
+- Unified interfaces for immutable **and mutable** `Guid` and ID-based unique identifiers.
 - Handy methods for working with strings, vectors, and collections.
 
 ### 2. **Randomization Utilities**
