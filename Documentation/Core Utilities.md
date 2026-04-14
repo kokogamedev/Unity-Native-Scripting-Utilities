@@ -1099,6 +1099,37 @@ public class Example : MonoBehaviour
 ```
 ---
 
+### `CommandSO<On, With>`
+
+#### Overview
+The **`CommandSO<On, With>`** class is a generalized implementation of the Flyweight Command Pattern. It allows defining stateless, reusable logic encapsulated in a `ScriptableObject` for execution on a target object (`On`) with some data (`With`).
+
+#### Members
+- **Methods**:
+  - `abstract void Execute(On obj, With data)`: Executes the command with the specified target object and data.
+
+#### Example Usage
+
+- **Specialized Command**:
+  ```csharp
+  [CreateAssetMenu(menuName = "Commands/TransformCommand")]
+  public class TransformCommand : CommandSO<Transform, Vector3>
+  {
+      public override void Execute(Transform target, Vector3 data)
+      {
+          target.position = data;
+      }
+  }
+  ```
+
+- **Executing a Command**:
+  ```csharp
+  TransformCommand moveCommand = ...;
+  moveCommand.Execute(playerTransform, new Vector3(5, 5, 5));
+  ```
+
+---
+
 ## 3. `PsigenVision.Utilities.Collection` Namespace
 
 ### Classes:

@@ -35,3 +35,16 @@ The format adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), 
 
 ### Chores
 - Small refactoring of the FNV1a hash function implementation in `ComputeFNV1aHash` extension method - no logic impact.
+
+---
+
+## [0.9.2] - 2026-04-10
+
+### Added **New Feature:** Programming Patterns.
+- Introduced new submodule to the Programming Patterns feature to facilitate the implementation of the **Flyweight Command Pattern** while making use of Unity's `ScriptableObject` system for serialization and inspector support.
+- Introduced abstract base classes for reusable commands in `PsigenVision.Utilities.Patterns.Commands`.
+    - **`CommandActionSO<On, With>`**: Operates on a target object with associated input data.
+    - **`CommandActionSO<On>`**: Operates on a target object without additional data.
+    - **`CommandActionMultiSO<On, With>`**: Operates on a target object with a dynamic array of inputs.
+
+---

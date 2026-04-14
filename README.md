@@ -21,6 +21,7 @@ Here’s a peek into what this library offers:
 ### 1. **Core Utilities**
 - Unified interfaces for immutable **and mutable** `Guid` and ID-based unique identifiers.
 - Handy methods for working with strings, vectors, and collections.
+- Base classes for implementing fundamental programming patterns (e.g. flyweight command pattern).
 
 ### 2. **Randomization Utilities**
 - Retrieve random elements from collections or Unity's `Bounds`.
@@ -70,6 +71,17 @@ Here’s a peek into what this library offers:
 ### 11. **Testing Utilities**
 - Debug utilities for validating early logic and concepts during development.
   > _Disclaimer_: Absolutely still in the early stages! This is a pretty bare bones (but still useful) utility. It complements, but **does not replace**, unit testing!
+
+### 12. **Programming Patterns**
+
+#### Submodule: Commands
+- Implements the **Flyweight Command Pattern** using Unity's `ScriptableObject`.
+- Provides reusable, decoupled, state-independent commands:
+  - Commands with target and single input data (`CommandActionSO<On, With>`).
+  - Commands operating only on a target object (`CommandActionSO<On>`).
+  - Commands with target and variadic input data (`CommandActionMultiSO<On, WithA, WithB>`, `CommandActionParamsSO<On, With>`).
+- Ideal for reusable design and clean code organization.
+
 
 ---
 
