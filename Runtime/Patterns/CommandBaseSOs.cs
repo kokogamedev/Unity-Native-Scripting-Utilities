@@ -18,6 +18,15 @@ namespace PsigenVision.Utilities.Patterns.Command
         /// <param name="obj">The object on which the command is executed.</param>
         /// <param name="data">The additional data used/required during the execution of the command.</param>
         public abstract void Execute(On obj, With data);
+        
+        /// <summary>
+        /// Executes a command using the provided object and additional data.
+        /// </summary>
+        /// <typeparam name="On">The type of object the command is executed upon.</typeparam>
+        /// <typeparam name="With">The type of data passed to the command.</typeparam>
+        /// <param name="obj">The object on which the command is executed.</param>
+        /// <param name="data">The additional data used/required during the execution of the command.</param>
+        public abstract void Execute(On obj, ref With data);
     }
 
     /// <summary>
@@ -54,11 +63,36 @@ namespace PsigenVision.Utilities.Patterns.Command
         /// <param name="dataA">The first piece of data associated with the command execution.</param>
         /// <param name="dataB">The second piece of data associated with the command execution.</param>
         public abstract void Execute(On obj, WithA dataA, WithB dataB);
-    }
-
-    public class BlackBoardPointer<T>
-    {
-        T value;
+        /// <summary>
+        /// Executes a command on the specified target with the provided data types.
+        /// </summary>
+        /// <typeparam name="On">The type of the target on which the command is executed.</typeparam>
+        /// <typeparam name="WithA">The first type of the data used during execution.</typeparam>
+        /// <typeparam name="WithB">The second type of the data used during execution.</typeparam>
+        /// <param name="obj">The target object on which the command operates.</param>
+        /// <param name="dataA">The first piece of data associated with the command execution.</param>
+        /// <param name="dataB">The second piece of data associated with the command execution.</param>
+        public abstract void Execute(On obj, ref WithA dataA, WithB dataB);
+        /// <summary>
+        /// Executes a command on the specified target with the provided data types.
+        /// </summary>
+        /// <typeparam name="On">The type of the target on which the command is executed.</typeparam>
+        /// <typeparam name="WithA">The first type of the data used during execution.</typeparam>
+        /// <typeparam name="WithB">The second type of the data used during execution.</typeparam>
+        /// <param name="obj">The target object on which the command operates.</param>
+        /// <param name="dataA">The first piece of data associated with the command execution.</param>
+        /// <param name="dataB">The second piece of data associated with the command execution.</param>
+        public abstract void Execute(On obj, WithA dataA, ref WithB dataB);
+        /// <summary>
+        /// Executes a command on the specified target with the provided data types.
+        /// </summary>
+        /// <typeparam name="On">The type of the target on which the command is executed.</typeparam>
+        /// <typeparam name="WithA">The first type of the data used during execution.</typeparam>
+        /// <typeparam name="WithB">The second type of the data used during execution.</typeparam>
+        /// <param name="obj">The target object on which the command operates.</param>
+        /// <param name="dataA">The first piece of data associated with the command execution.</param>
+        /// <param name="dataB">The second piece of data associated with the command execution.</param>
+        public abstract void Execute(On obj, ref WithA dataA, ref WithB dataB);
     }
     /// <summary>
     /// A generic abstract base class for implementing the Flyweight Command Pattern, representing a ScriptableObject designed to execute a command

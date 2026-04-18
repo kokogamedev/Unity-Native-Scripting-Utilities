@@ -115,4 +115,21 @@ namespace PsigenVision
         public GameObject gameObject { get; }
         public Transform transform { get; }
     }
+    
+    /// <summary>
+    /// Represents an interface for providing access to struct data of a specific type. 
+    /// <remarks>
+    /// The pattern described is the Provider Pattern or a specialized form of the Repository Pattern, often implemented alongside Dependency Injection.
+    /// It decouples data consumers from the data source by hiding implementation details behind an IDataProvider interface,
+    /// ensuring consistent, continuous access to structural data (e.g., structs, DTOs, or entities)
+    /// </remarks>
+    /// </summary>
+    /// <typeparam name="T">
+    /// Specifies the type of data that this provider delivers. This is typically a value type (struct),
+    /// ensuring robust and non-nullable handling of the data being retrieved.
+    /// </typeparam>
+    public interface IDataProvider<T> where T : struct
+    {
+        void GetData(out T data); //The reason for the out parameter method vs returning type T is to permit a single class/struct to implement multiple data providers
+    }
 }

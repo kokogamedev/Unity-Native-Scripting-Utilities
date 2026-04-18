@@ -48,3 +48,26 @@ The format adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), 
     - **`CommandActionMultiSO<On, With>`**: Operates on a target object with a dynamic array of inputs.
 
 ---
+## [0.9.3] - 2026-04-18
+
+### Added to **Core Utilities**
+- Introduced `IsValidMemberName` for validating C# member names against naming conventions and reserved keywords.
+- Added `StringExtensions.IsValidDotSeparatedPath` to validate dot-separated paths (e.g., namespaces). Ensures each segment abides by C# member naming conventions.
+- Added `AppendDigitForUniqueName` to effortlessly generate unique names using customizable numeric suffixes.
+- Introduced `LengthenBy` for dynamically resizing arrays while maintaining original data, with optional reversed placement.
+- Added `IDataProvider<T>` interface for lightweight and type-safe structured data retrieval.
+
+### Added to **Programming Patterns**
+- Introduced new `ref` overloads into the following methods to enhance flexibility and enable in-place data modifications:
+  - `CommandActionSO<On, With>`:
+    - `Execute(On obj, ref With data)`
+  - `CommandActionMultiSO<On, WithA, WithB>`:
+    - `Execute(On obj, ref WithA dataA, WithB dataB)`
+    - `Execute(On obj, WithA dataA, ref WithB dataB)`
+    - `Execute(On obj, ref WithA dataA, ref WithB dataB)`
+
+These additions extend the Flyweight Command Pattern's support for scenarios where commands need to directly modify the data passed to them or reduce overhead for copying large structs, offering greater versatility for developers.
+
+
+
+---

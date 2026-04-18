@@ -21,7 +21,9 @@ Here’s a peek into what this library offers:
 ### 1. **Core Utilities**
 - Unified interfaces for immutable **and mutable** `Guid` and ID-based unique identifiers.
 - Handy methods for working with strings, vectors, and collections.
-- Base classes for implementing fundamental programming patterns (e.g. flyweight command pattern).
+- New methods for validating C# member names and generating unique names with ease.
+- Extended support for collection manipulation, including dynamic resizing of arrays.
+- A lightweight interface for structured data retrieval.
 
 ### 2. **Randomization Utilities**
 - Retrieve random elements from collections or Unity's `Bounds`.

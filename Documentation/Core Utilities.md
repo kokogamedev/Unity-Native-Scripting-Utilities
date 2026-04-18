@@ -175,6 +175,49 @@ public class ExampleComponent : MonoBehaviour, IUnityComponent
 
 ---
 
+### `IDataProvider<T>`
+
+#### Overview
+The **`IDataProvider<T>`** interface provides a contract for supplying data of a specific struct type (`T`). It serves as a mechanism to retrieve immutable or externalized data, ensuring type safety and avoiding direct dependencies on data storage or implementation details.
+
+By constraining `T` to value types (using `struct`), this interface is especially suited for lightweight and efficient data access patterns in systems managing state or shared resources.
+
+#### Members
+
+- **Method**:
+  - `void GetData(out T data)`: Retrieves an instance of the data represented by type `T`. The `out` parameter ensures that data is efficiently assigned by reference.
+
+#### Behavior
+When implemented, the interface allows objects to serve as a simple data provider. This pattern is useful in scenarios where multiple components or systems need consistent access to the same data.
+
+#### Example Usage
+```c#
+public struct PlayerStats
+{
+    public int Health;
+    public int Mana;
+}
+
+public class PlayerStatsProvider : IDataProvider<PlayerStats>
+{
+    private readonly PlayerStats _stats = new PlayerStats { Health = 100, Mana = 50 };
+
+    public void GetData(out PlayerStats data)
+    {
+        data = _stats;
+    }
+}
+
+// Example retrieval
+IDataProvider<PlayerStats> provider = new PlayerStatsProvider();
+provider.GetData(out PlayerStats stats);
+
+Console.WriteLine($"Health: {stats.Health}, Mana: {stats.Mana}");
+// Output: Health: 100, Mana: 50
+```
+
+---
+
 ## 2. `PsigenVision.Utilities` Namespace
 
 ### Classes:
@@ -191,7 +234,7 @@ The **`StringExtensions`** class provides utility methods for working with strin
 
 #### Methods
 
-##### 1. `ComputeFNV1aHash`
+##### `ComputeFNV1aHash`
 ```c#
 public static int ComputeFNV1aHash(this string str)
 ```
@@ -214,6 +257,97 @@ public static int ComputeFNV1aHash(this string str)
 
 - **Applications**:
 	- Useful for creating identifiers or dictionary keys without relying on full strings, which can reduce memory usage and improve lookup performance.
+
+---
+
+##### `IsValidMemberName`
+
+###### Overview
+The **`IsValidMemberName`** extension method determines if a string conforms to the naming rules of a valid C# member name. This validation includes checks for reserved C# keywords to prevent the name from conflicting with the language syntax.
+
+A valid member name:
+- Must begin with a letter or an underscore (`_`).
+- Can only include letters, digits, or underscores for subsequent characters.
+- Must not match any reserved C# keywords precisely.
+
+###### Pattern Explanation
+The method uses a **regular expression** for validation:
+```regex
+^(?!(?:keyword1|keyword2|...)$)[a-zA-Z_][a-zA-Z0-9_]*$
+```
+
+Breakdown:
+- `^` anchors the match start, and `$` anchors the end to validate the entire string.
+- `(?!(?:reserved_keywords)$)` ensures the name is not a reserved C# keyword.
+- `[a-zA-Z_]` validates that the first character is a letter or underscore.
+- `[a-zA-Z0-9_]*` allows alphanumeric and underscore characters.
+
+###### Example Usage
+```c#
+bool result1 = "MyVariable".IsValidMemberName();  // Returns true
+bool result2 = "123Variable".IsValidMemberName(); // Returns false (Invalid start character)
+bool result3 = "class".IsValidMemberName();       // Returns false (C# reserved keyword)
+```
+
+---
+
+##### `IsValidDotSeparatedPath`
+
+###### Overview
+The **`IsValidDotSeparatedPath`** extension method verifies whether a string represents a valid dot-separated path. Each segment in the path must conform to the rules of a valid C# member name.
+
+A valid dot-separated path:
+- Consists of one or more segments separated by dots (`.`).
+- Each segment must:
+  - Start with a letter or an underscore (`_`).
+  - Only contain letters, digits, or underscores.
+  - Not match any reserved C# keywords exactly.
+
+This method is particularly useful for validating namespaces or other hierarchical identifiers.
+
+###### How It Works
+The method splits the input string along the dots and checks each segment using the `IsValidMemberName` extension method. The validation fails if:
+1. The string is empty or null.
+2. Any segment doesn’t conform to C# member naming rules.
+
+###### Example Usage
+```c#
+bool result1 = "MyNamespace.SubNamespace".IsValidDotSeparatedPath();  // Returns true
+bool result2 = "Invalid Namespace".IsValidDotSeparatedPath();         // Returns false (contains spaces)
+bool result3 = "123MyNamespace".IsValidDotSeparatedPath();            // Returns false (invalid start in first segment)
+bool result4 = "".IsValidDotSeparatedPath();                          // Returns false (empty string)
+```
+
+###### Notes
+This method is in the `StringExtensions` class, located in the **Core** module of your project.
+
+---
+
+##### `AppendDigitForUniqueName`
+
+###### Overview
+The **`AppendDigitForUniqueName`** extension method ensures the uniqueness of a name by appending a numeric suffix if there is a conflict with existing names in a collection.
+
+This method interacts with a `HashSet<string>` of existing names to guarantee uniqueness. If the original name does not already exist, it is returned unchanged. Otherwise, a numeric suffix is added to create a new name.
+
+###### Parameters
+- **`originalName`**: The base name to check for uniqueness.
+- **`existingNames`**: A reference to a `HashSet<string>` containing names that already exist.
+- **`withUnderscore`** *(Optional)*: A boolean flag indicating whether the numeric suffix should be prefixed with an underscore (`_`). Defaults to `false`.
+- **`addToHashset`** *(Optional)*: Whether the resulting unique name should be added to the provided `HashSet<string>`. Defaults to `true`.
+
+###### Example Usage
+```c#
+var existingNames = new HashSet<string> { "Name1", "Name2" };
+string uniqueName = "Name".AppendDigitForUniqueName(ref existingNames, withUnderscore: true);
+
+Console.WriteLine(uniqueName);  // Output: "Name_1" if "Name" already exists in the set
+```
+
+###### Behavior
+1. If `originalName` is unique in `existingNames`, it is returned unchanged.
+2. If a conflict is found, a numeric suffix is appended, formatted based on `withUnderscore` (e.g., `Name1` or `Name_1`).
+3. The unique name is automatically added to the `HashSet<string>` if `addToHashset` is `true`.
 
 ---
 
@@ -1209,9 +1343,47 @@ public static bool TryThoroughRemove<TKey, TValue>(this SortedList<TKey, List<TV
 
 ---
 
+### `StandardCollectionExtensions`
+
+#### Overview
+The **`StandardCollectionExtensions`** static class provides utility methods to manipulate and extend standard collections in a more efficient and expressive manner. These methods are designed to enhance existing .NET collections with additional functionality, simplifying common coding tasks and improving readability.
+
+#### Methods
+
+##### 1. `LengthenBy`
+
+###### Overview
+The **`LengthenBy`** method creates a new array that is larger than the original by a specified number of elements and optionally shifts the original array's contents. It is useful for dynamically resizing arrays while ensuring the existing data is preserved.
+
+###### Parameters
+- **`array`**: The source array to be lengthened.
+- **`by`**: The number of additional elements to add to the new array. Must be greater than zero.
+- **`reversed`** *(Optional)*: Specifies whether the original array's contents should be positioned at the end of the resized array instead of the beginning. Defaults to `false`.
+
+###### Behavior
+1. Creates a new array with a size equal to the original array size plus the value of `by`.
+2. Copies the original contents into the new array, either at the start or the end based on the `reversed` flag.
+3. Leaves the newly added elements uninitialized (for value types, defaults to `default(T)`).
+
+###### Example Usage
+```c#
+int[] numbers = { 1, 2, 3 };
+int[] expanded = numbers.LengthenBy(2, reversed: false);
+// expanded = { 1, 2, 3, 0, 0 }
+
+int[] reversedExpanded = numbers.LengthenBy(2, reversed: true);
+// reversedExpanded = { 0, 0, 1, 2, 3 }
+```
+
+###### Exceptions
+- **`ArgumentOutOfRangeException`**: Thrown when `by` is less than or equal to zero.
+
+---
+
 ## Final Notes
 
 This modular breakdown organizes the **Core Utilities** by namespace, focusing on their respective scopes:
 1. **`PsigenVision`**: Interfaces and core abstractions.
 2. **`PsigenVision.Utilities`**: Common utilities to streamline development.
 3. **`PsigenVision.Utilities.Collection`**: Specialized collection operations.
+

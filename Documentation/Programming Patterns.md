@@ -43,14 +43,29 @@ public abstract void Execute(On obj, With data);
   - `On obj`: The object to operate upon.
   - `With data`: The associated data required for the command to execute.
 
+---
+
+##### 2. `Execute(On obj, ref With data)`
+```c#
+public abstract void Execute(On obj, ref With data);
+```
+
+- **Description**:
+  Executes the command on the specified target object with the provided input data. Unlike the previous overload, this method uses a `ref` parameter, allowing in-place modifications to the provided data.
+
+- **Parameters**:
+  - `On obj`: The object to operate upon.
+  - `With data`: The associated data used and/or modified during the command execution.
+
 - **Usage Example**:
   ```c#
-  [CreateAssetMenu(menuName = "Commands/MoveGameObject")]
-  public class MoveGameObjectCommandSO : CommandActionSO<GameObject, Vector3>
+  [CreateAssetMenu(menuName = "Commands/ModifyStats")]
+  public class ModifyStatsCommandSO : CommandActionSO<Player, float>
   {
-      public override void Execute(GameObject obj, Vector3 newPosition)
+      public override void Execute(Player player, ref float healthMultiplier)
       {
-          obj.transform.position = newPosition;
+          player.Health *= healthMultiplier;
+          healthMultiplier -= 0.1f;  // Example modification
       }
   }
   ```
@@ -102,31 +117,51 @@ public abstract void Execute(On obj, WithA dataA, WithB dataB);
 ```
 
 - **Description**:
-  Executes the command on the specified target object with two types of input data.
+  Executes the command on the specified target object with the provided input data.
 
-- **Parameters**:
-  - `On obj`: The object to operate upon.
-  - `WithA dataA`: The first associated data required for the command to execute.
-  - `WithB dataB`: The second associated data required for the command to execute.
+---
+
+##### 2. `Execute(On obj, ref WithA dataA, WithB dataB)`
+```c#
+public abstract void Execute(On obj, ref WithA dataA, WithB dataB);
+```
+
+- **Description**:
+  Executes the command using the specified target and input data. The first data parameter (`dataA`) is passed by reference, allowing in-place modifications during execution.
+
+---
+
+##### 3. `Execute(On obj, WithA dataA, ref WithB dataB)`
+```c#
+public abstract void Execute(On obj, WithA dataA, ref WithB dataB);
+```
+
+- **Description**:
+  Executes the command on the specified target with input data. The second data parameter (`dataB`) is passed by reference, allowing in-place modifications during execution.
+
+---
+
+##### 4. `Execute(On obj, ref WithA dataA, ref WithB dataB)`
+```c#
+public abstract void Execute(On obj, ref WithA dataA, ref WithB dataB);
+```
+
+- **Description**:
+  Executes the command using the specified target and input data, with both data parameters (`dataA` and `dataB`) passed by reference for in-place modifications.
 
 - **Usage Example**:
   ```c#
-  [CreateAssetMenu(menuName = "Commands/Rigidbody/AddImpulses")]
-  public class LocomotionModuleAction: BlackboardModuleAction<LocomotionModule, LocomotionData>
+  [CreateAssetMenu(menuName = "Commands/AdjustStats")]
+  public class AdjustStatsCommandSO : CommandActionMultiSO<Player, float, float>
   {
-      public void Execute(Blackboard blackboard, BlackboardModuleSlot<LocomotionModule> module, LocomotionData Data)
+      public override void Execute(Player player, ref float healthMultiplier, ref float staminaMultiplier)
       {
-          module.Direction = Data.Direction;
-          //Potentially access Blackboard's other modules via Blackboard reference
+          player.Health *= healthMultiplier;
+          player.Stamina *= staminaMultiplier;
+          healthMultiplier -= 0.1f;
+          staminaMultiplier -= 0.2f;
       }
   }
-
-  public abstract class BlackboardModuleAction<ModuleType,DataType> : CommandActionMultiSO<Blackboard, BlackboardModuleSlot<T>, WithB>
-  {}
-
-  public interface IBlackboardModule { }
-    
-  public class BlackboardModuleSlot<T> where T : struct, IBlackboardModule { public T Data; }
   ```
 ---
 ### `CommandActionParamsSO<On, With>`
