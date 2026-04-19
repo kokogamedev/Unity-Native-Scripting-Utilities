@@ -21,7 +21,7 @@ Here’s a peek into what this library offers:
 ### 1. **Core Utilities**
 - Unified interfaces for immutable **and mutable** `Guid` and ID-based unique identifiers.
 - Handy methods for working with strings, vectors, and collections.
-- New methods for validating C# member names and generating unique names with ease.
+- New methods for validating C# member names and generating unique names with ease, and additional handling for escaped strings.
 - Extended support for collection manipulation, including dynamic resizing of arrays.
 - A lightweight interface for structured data retrieval.
 
@@ -83,6 +83,22 @@ Here’s a peek into what this library offers:
   - Commands operating only on a target object (`CommandActionSO<On>`).
   - Commands with target and variadic input data (`CommandActionMultiSO<On, WithA, WithB>`, `CommandActionParamsSO<On, With>`).
 - Ideal for reusable design and clean code organization.
+
+### 13. **Editor Scripting Utilities**
+### `EditorExtensions`
+- **Dynamic Value Retrieval/Assignment:** Provides methods to get or set values in serialized properties.
+- **Type Information:** Retrieve `System.Type` of serialized fields.
+- **Boxed Value Handling:** Update and manipulate `SerializedProperty.boxedValue` for nested struct serialization.
+
+### `ReflectionExtensions`
+- **Advanced Field Reflection:** Access nested fields or array elements using dot-separated paths.
+- **Field Mapping:** Retrieve field stacks for dynamic traversal.
+- **Collection Parsing:** Handle array or IList elements for reflection.
+- **Direct Value Assignment:** Set values inside structs or arrays with path-based navigation.
+
+### `EnumExtensions`
+- **Index-based Enums:** Retrieve enums dynamically using their order index.
+- **Unified Enum Handling:** Resolve enums for fields across different structures.
 
 
 ---

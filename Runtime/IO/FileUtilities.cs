@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -16,14 +14,22 @@ namespace PsigenVision.Utilities.IO
         /// Ensures that the specified directory path exists, creating any missing directories in the path.
         /// </summary>
         /// <param name="path">The full path of the directory to ensure.</param>
-        public static void EnsureDirectoryExists(string path)
+        public static void EnsureDirectoryExists(string path, bool escapeSpecialCharacters) => path.EnsureDirectory(escapeSpecialCharacters);
+
+        /// <summary>
+        /// Ensures that the specified directory path exists, creating any missing directories in the path.
+        /// </summary>
+        /// <param name="path">The full path of the directory to ensure.</param>
+        /// <param name="escapeSpecialCharacters">Specifies whether to escape special characters in the path before ensuring the directory's existence.</param>
+        public static void EnsureDirectory(this string path, bool escapeSpecialCharacters = false)
         {
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-                Debug.Log($"Directory created at path: {path}");
-                AssetDatabase.Refresh(); // Refresh the AssetDatabase if working within Unity's Asset folder
-            }
+            if (escapeSpecialCharacters) path = path.EscapeSpecial();
+                
+            if (Directory.Exists(path)) return;
+            
+            Directory.CreateDirectory(path);
+            Debug.Log($"Directory created at path: {path}");
+            AssetDatabase.Refresh(); // Refresh the AssetDatabase if working within Unity's Asset folder
         }
 
         /// <summary>

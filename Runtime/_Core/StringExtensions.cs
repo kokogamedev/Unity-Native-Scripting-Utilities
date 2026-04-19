@@ -62,6 +62,7 @@ namespace PsigenVision.Utilities
         /// <param name="originalName">The base name to modify if it already exists in the collection.</param>
         /// <param name="existingNames">A reference to a set containing names to check for uniqueness.</param>
         /// <param name="addToHashset">A boolean flag indicating whether the generated unique name should be added to the set.</param>
+        /// <param name="withUnderscore">Determines if the appended number should be prefixed with an underscore.</param>
         /// <returns>A unique name. If no conflict exists, returns the original name; otherwise, returns the modified unique name.</returns>
         public static string AppendDigitForUniqueName(this string originalName, ref HashSet<string> existingNames,
             bool withUnderscore = false, bool addToHashset = true)
@@ -73,9 +74,17 @@ namespace PsigenVision.Utilities
             existingNames.Add(uniqueName);
             return uniqueName;
         }
-        
-        
-        private static string GenerateUniqueName(string originalName, HashSet<string> existingNames, bool withUnderscore)
+
+        /// <summary>
+        /// Generates a unique name by appending a number to the original name, ensuring it does not conflict with any existing names in the provided set.
+        /// If the name already exists, increments the number until a unique name is found.
+        /// </summary>
+        /// <param name="originalName">The base name to start with before generating a unique variation.</param>
+        /// <param name="existingNames">A collection of names to check against for uniqueness.</param>
+        /// <param name="withUnderscore">Determines if the appended number should be prefixed with an underscore.</param>
+        /// <returns>A unique string that does not exist in the provided set of existing names.</returns>
+        private static string GenerateUniqueName(string originalName, HashSet<string> existingNames,
+            bool withUnderscore)
         {
             int counter = 1;
             string formattedName = originalName;
@@ -86,6 +95,38 @@ namespace PsigenVision.Utilities
             }
 
             return formattedName;
+        }
+
+        /// <summary>
+        /// Escapes special characters in the input string by replacing them with their escaped equivalents.
+        /// This is useful for preparing strings for scenarios where specific characters (e.g., backslashes, tabs, or quotes)
+        /// could cause issues, such as serialization or formatting.
+        /// </summary>
+        /// <param name="input">The input string containing special characters to be escaped.</param>
+        /// <returns>A new string with the specific special characters replaced by their escaped representations.</returns>
+        public static string EscapeSpecialChars(string input) => input.EscapeSpecial();
+        
+        /// <summary>
+        /// Escapes special characters in the input string by replacing them with their escaped equivalents.
+        /// This is useful for preparing strings for scenarios where specific characters (e.g., backslashes, tabs, or quotes)
+        /// could cause issues, such as serialization or formatting.
+        /// </summary>
+        /// <param name="input">The input string containing special characters to be escaped.</param>
+        /// <returns>A new string with the specific special characters replaced by their escaped representations.</returns>
+        public static string EscapeSpecial(this string input)
+        {
+            {
+                if (string.IsNullOrEmpty(input)) return input;
+
+                return input
+                    .Replace("\\", @"\\")   // Backslash
+                    .Replace("\"", "\\\"")  // Double quote
+                    .Replace("\t", @"\t")   // Tab
+                    .Replace("\n", @"\n")   // New line
+                    .Replace("\r", @"\r")   // Carriage return
+                    .Replace("\b", @"\b")   // Backspace
+                    .Replace("\f", @"\f");  // Form feed
+            }
         }
     }
 }

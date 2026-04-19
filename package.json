@@ -1,7 +1,7 @@
 {
   "name": "com.psigenvision.utilities.native",
   "displayName": "Unity Native C# Utilities",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "A suite of Unity C# utilities for smoother workflows—randomization, interpolation, combinatorics, low-level tools, and more!",
   "author": {
     "name": "David Kokoski",

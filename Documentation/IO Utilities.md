@@ -25,9 +25,10 @@ This class has not been extensively tested and is still in early development. Wh
 
 #### Methods
 
-##### 1. `EnsureDirectoryExists`
+##### 1. `EnsureDirectoryExists/EnsureDirectory`
 ```c#
-public static void EnsureDirectoryExists(string path)
+public static void EnsureDirectoryExists(string path, bool escapeSpecialCharacters = false)
+public static void EnsureDirectory(this string path, bool escapeSpecialCharacters = false)
 ```
 
 - **Description**:
@@ -35,6 +36,7 @@ public static void EnsureDirectoryExists(string path)
 
 - **Parameters**:
 	- `string path`: The full path of the directory to ensure.
+    - `escapeSpecialCharacters` : Specifies whether to escape special characters in the path before ensuring the directory's existence.
 
 - **Details**:
 	- If the directory already exists, no action is taken.
@@ -44,6 +46,8 @@ public static void EnsureDirectoryExists(string path)
   ```c#
   FileUtilities.EnsureDirectoryExists("Assets/Textures/NewFolder");
   // Logs: "Directory created at path: Assets/Textures/NewFolder"
+  var anotherPath = "Assets/Textures/NewFolder2";
+  anotherPath.EnsureDirectory();
   ```
 
 - **Best Practices**:

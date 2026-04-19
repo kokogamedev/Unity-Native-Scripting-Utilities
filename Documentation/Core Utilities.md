@@ -351,6 +351,35 @@ Console.WriteLine(uniqueName);  // Output: "Name_1" if "Name" already exists in 
 
 ---
 
+##### `EscapeSpecialChars/EscapeSpecial`
+
+###### Overview
+The **`EscapeSpecialChars`** method and its corresponding `EscapeSpecial` extension method ensures properly formatted strings for special character handling, escaping special characters in the input string by replacing them with their escaped counterparts. Useful for preparing strings for formats like JSON or other contexts requiring special character handling.
+
+This method/extension currently handles backslashes, double quotes, tabs, new lines, carriage returns, backspaces, and form feed.
+
+###### Parameters
+- **`input`**: The input string containing characters to escape.
+
+###### Example Usage
+```c#
+string rawInput = @"Path: ""C:\Temp""";
+string escaped = MyClass.EscapeSpecial(rawInput);
+
+// Result: Path: \"C:\\Temp\"
+Debug.Log(escaped); 
+```
+
+###### Behavior
+- **Sequential Replacement**: The method processes replacements in a specific order. It handles the backslash (\) first to ensure that newly introduced escape characters (like the \ in \") are not accidentally escaped a second time.
+- **Literal Transformation**: It converts non-printable control characters (like newlines or tabs) into their equivalent two-character visual representations (e.g., the byte 0x0A becomes the string \n).
+- **Null/Empty Safety**: The method includes a guard clause to return string.Empty or null immediately if the input is null, preventing NullReferenceExceptions.
+- **Immutability**: Since strings in C# are immutable, each .Replace() call creates a new string instance in memory. For extremely long strings or high-frequency loops, a StringBuilder approach is used internally to maintain performance.
+- **No Un-escaping**: This is a one-way transformation. It does not verify if a string is already escaped; it will apply escapes to any matching character regardless of existing context.
+
+
+---
+
 ### VectorMath Helper Class
 
 The `PsigenVision.Utilities.VectorMath` class provides utility methods to work with vectors in Unity, offering advanced vector manipulation functionalities.
