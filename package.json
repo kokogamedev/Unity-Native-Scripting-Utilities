@@ -1,7 +1,7 @@
 {
   "name": "com.psigenvision.utilities.native",
   "displayName": "Unity Native C# Utilities",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "A suite of Unity C# utilities for smoother workflows—randomization, interpolation, combinatorics, low-level tools, and more!",
   "author": {
     "name": "David Kokoski",
@@ -9,7 +9,7 @@
   },
   "samples": [
     {
-      "displayName":"Sorted List Utils Test",
+      "displayName": "Sorted List Utils Test",
       "description": "An example of the sorted list extension methods implemented using custom testing script.",
       "path": "Samples~/Sorted List Example"
     }
