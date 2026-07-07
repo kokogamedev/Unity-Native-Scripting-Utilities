@@ -20,8 +20,10 @@ Here’s a peek into what this library offers:
 
 ### 1. **Core Utilities**
 - Unified interfaces for immutable **and mutable** `Guid` and ID-based unique identifiers.
+- Static classes for tracking application, editor, and scene lifecycles.
 - Handy methods for working with strings, vectors, and collections.
-- New methods for validating C# member names and generating unique names with ease, and additional handling for escaped strings.
+- Methods for validating C# member names and generating unique names with ease, and additional handling for escaped strings.
+- Methods for hashing strings and other primitives using FNV-1a and other algorithms. 
 - Extended support for collection manipulation, including dynamic resizing of arrays.
 - A lightweight interface for structured data retrieval.
 
@@ -83,6 +85,11 @@ Here’s a peek into what this library offers:
   - Commands operating only on a target object (`CommandActionSO<On>`).
   - Commands with target and variadic input data (`CommandActionMultiSO<On, WithA, WithB>`, `CommandActionParamsSO<On, With>`).
 - Ideal for reusable design and clean code organization.
+
+#### Submodule: Singeltons
+- **Pure C# Singleton Management:** Provides a base class for creating and managing singleton instances based on pure C# classes.
+- **Lazy Initialization:** Ensures singletons are initialized only when accessed.
+- **Thread Safety:** Ensures thread-safe access to singleton instances.
 
 ### 13. **Editor Scripting Utilities**
 ### `EditorExtensions`

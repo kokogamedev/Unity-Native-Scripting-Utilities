@@ -6,7 +6,7 @@ The **Programming Patterns** module contains reusable abstractions and implement
 
 ## Submodules
 
-### 1. `Commands`
+### 1. `Commands` 
 
 #### Overview
 The **`Commands`** submodule provides an implementation of the **Flyweight Command Pattern** using Unity's `ScriptableObject`. This framework allows commands to be serialized, reusable, and decoupled from the logic or objects they act upon.
@@ -19,6 +19,15 @@ The **`Commands`** submodule provides an implementation of the **Flyweight Comma
   - **`CommandActionMultiSO<On, WithA, WithB>`**: Operates on a target object with two separate inputs for data of potentially different types.
   - **`CommandActionParamsSO<On, With>`**: Operates on a target object with a dynamic array of associated data.
 - Unity-ready design through `ScriptableObject` for easy integration into serialization workflows and inspector tooling.
+
+
+### 2. `Singelton`
+
+#### Overview
+
+
+#### Key Features
+
 
 ---
 
@@ -204,10 +213,83 @@ public abstract void Execute(On obj, params With[] data);
 2. Place concrete implementations in **well-defined folders** organized by their purpose (e.g., Movement, Interaction, GameObject Lifecycle).
 
 ---
+### `NativeSingleton<T>`
+
+#### Overview
+`NativeSingleton<T>` provides a generic singleton implementation for **pure C# types** (non-MonoBehaviour) that require exactly one instance throughout the application's lifetime. The instance is lazily initialized on first access and automatically disposed on application quit if the type implements `IDisposable`.
+
+#### Properties
+
+##### 1. `Instance`
+```c#
+public static T Instance { get; }
+```
+
+- **Description**:
+  Returns the singleton instance of `T`, creating it if it does not yet exist. On first access, the instance is registered with `LifecycleTracker` so that `Dispose` is called automatically when the application quits.
+
+- **Returns**: The single instance of `T`.
+
+---
+
+##### 2. `HasInstance`
+```c#
+public static bool HasInstance { get; }
+```
+
+- **Description**:
+  Returns `true` if the singleton instance has already been created, `false` otherwise. Useful for conditional logic that should not trigger lazy initialization.
+
+---
+
+#### Methods
+
+##### 1. `Dispose()`
+```c#
+public static void Dispose()
+```
+
+- **Description**:
+  Releases the singleton instance and unregisters it from `LifecycleTracker`. If `T` implements `IDisposable`, its `Dispose` method is called. After this, `Instance` will create a fresh instance on next access.
+
+---
+
+#### Usage Example
+```c#
+public class AudioManager : NativeSingleton<AudioManager>
+{
+    private AudioSource _source;
+
+    public AudioManager()
+    {
+        _source = new AudioSource();
+    }
+
+    public void Play(AudioClip clip) => _source.PlayOneShot(clip);
+}
+
+// Anywhere in code:
+AudioManager.Instance.Play(myClip);
+
+// Check before accessing without triggering creation:
+if (AudioManager.HasInstance)
+    AudioManager.Instance.Play(myClip);
+```
+
+#### Constraints
+- `T` must be a `class` with a **parameterless constructor**.
+- Not intended for `MonoBehaviour` types — use a Unity-based singleton pattern for those.
+
+---
 
 ## Namespace
 All `CommandSO` classes and their variations are part of:
 ```c#
 PsigenVision.Utilities.Patterns.Commands
+```
+
+`NativeSingleton<T>` class is a part of 
+```c#
+PsigenVision.Utilities.Patterns.Singleton
 ```
 ---

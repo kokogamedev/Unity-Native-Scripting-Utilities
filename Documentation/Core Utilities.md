@@ -7,11 +7,103 @@ The **Core Utilities** module provides foundational tools and helpers for a vari
 ## 1. `PsigenVision` Namespace
 
 ### Classes/Interfaces:
+- **`LifecycleTracker`** 
+- **`SceneTracker`**
 - **`IHaveGuid<T>`** *(Immutable GUID-based objects)*
 - **`IHaveMutableGuid<T>`** *(Mutable GUID-based objects)*
 - **`IHaveID<T>`** *(Immutable ID-based objects)*
 - **`IHaveMutableID<T>`** *(Mutable ID-based objects)*
 - **`IUnityComponent`**
+
+---
+
+### `LifecycleTracker`
+
+#### Overview
+**`LifecycleTracker`** is a static utility class that provides a unified application-quit event across both the Unity Editor and runtime builds. Because the Editor does not reset its scripting environment on recompilation, it abstracts over `Application.quitting` (runtime) and `EditorApplication.quitting` (editor) — exposing a single `applicationQuitting` event that other systems can safely subscribe to without worrying about environment differences.
+
+It is initialized automatically via `[RuntimeInitializeOnLoadMethod]` at runtime and `[InitializeOnLoadMethod]` in the editor.
+
+#### Members
+- **Events**:
+    - `Action applicationQuitting`: Raised when the application (or editor play session) is about to quit. Subscribers should perform cleanup here. The event is set to `null` after invocation to prevent memory leaks.
+
+#### Example Usage
+```c#
+public static class MySystem
+{
+    [RuntimeInitializeOnLoadMethod]
+    static void Initialize()
+    {
+        LifecycleTracker.applicationQuitting -= Cleanup;
+        LifecycleTracker.applicationQuitting += Cleanup;
+    }
+
+    static void Cleanup()
+    {
+        LifecycleTracker.applicationQuitting -= Cleanup;
+        // Release resources...
+    }
+}
+```
+
+#### Notes
+- Always guard against double-subscription by unsubscribing before subscribing (e.g., `-=` then `+=`).
+- Do not rely on `Application.quitting` directly in systems that need to work in the editor — use `applicationQuitting` instead.
+
+---
+
+### `SceneTracker`
+
+#### Overview
+**`SceneTracker`** is a static utility class that tracks the load status of every scene registered in the build settings. It maintains a persistent `NativeArray<int>` indexed by scene build index and exposes an event that fires whenever a scene's status changes. The class is auto-initialized before the first scene loads and cleans up its unmanaged memory on application quit via `LifecycleTracker`.
+
+#### Members
+- **Events**:
+    - `Action<int, Status> OnStatusChanged`: Raised when a scene's status changes. Provides the scene's build index and its new `Status`.
+- **Properties**:
+    - `NativeArray<int> SceneStatus`: A read-only snapshot of the current status of every build-settings scene, indexed by build index. Values correspond to the `SceneTracker.Status` enum.
+- **Methods**:
+    - `Status GetStatus(int buildIndex)`: Returns the `Status` of the scene at the given build index. Returns `Status.Invalid` if the index is out of range.
+    - `Status GetStatus(Scene scene)`: Returns the `Status` of the given `Scene` object. Returns `Status.Invalid` if the scene is not in the build settings.
+- **Enum — `SceneTracker.Status`**:
+
+    | Value | Int | Description |
+    |---|---|---|
+    | `Invalid` | 0 | Build index is out of range or uninitialized. |
+    | `Unloaded` | 1 | Scene is not currently loaded in memory. |
+    | `Loaded` | 2 | Scene is currently loaded and active. |
+
+#### Example Usage
+```c#
+// Query status directly
+SceneTracker.Status status = SceneTracker.GetStatus(1);
+if (status == SceneTracker.Status.Loaded)
+    Debug.Log("Scene 1 is loaded.");
+
+// React to scene status changes
+void OnEnable()
+{
+    SceneTracker.OnStatusChanged -= HandleStatusChanged;
+    SceneTracker.OnStatusChanged += HandleStatusChanged;
+}
+
+void OnDisable()
+{
+    SceneTracker.OnStatusChanged -= HandleStatusChanged;
+}
+
+void HandleStatusChanged(int buildIndex, SceneTracker.Status newStatus)
+{
+    if (buildIndex == 2 && newStatus == SceneTracker.Status.Loaded)
+        Debug.Log("Level scene finished loading.");
+}
+```
+
+#### Notes
+- `SceneTracker` is initialized with `RuntimeInitializeLoadType.BeforeSceneLoad`, so it is ready before any scene logic runs.
+- `SceneStatus` is backed by a `NativeArray` allocated with `Allocator.Persistent`. It is automatically disposed on application quit — do not hold a reference to it across frames if the application may be quitting.
+- Scenes not present in the build settings (build index `< 0`) are ignored and will return `Status.Invalid`.
 
 ---
 
@@ -234,32 +326,6 @@ The **`StringExtensions`** class provides utility methods for working with strin
 
 #### Methods
 
-##### `ComputeFNV1aHash`
-```c#
-public static int ComputeFNV1aHash(this string str)
-```
-
-- **Description**:
-  Computes the **FNV-1a hash** for the provided string, which is a fast, non-cryptographic hash function with good distribution properties.
-
-- **Parameters**:
-	- `string str`: The input string to hash.
-
-- **Returns**:
-	- `int`: The computed hash value of the input string.
-
-- **Usage**:
-  ```c#
-  string name = "ExampleName";
-  int hash = name.ComputeFNV1aHash();
-  Debug.Log($"Hash: {hash}");
-  ```
-
-- **Applications**:
-	- Useful for creating identifiers or dictionary keys without relying on full strings, which can reduce memory usage and improve lookup performance.
-
----
-
 ##### `IsValidMemberName`
 
 ###### Overview
@@ -377,6 +443,112 @@ Debug.Log(escaped);
 - **Immutability**: Since strings in C# are immutable, each .Replace() call creates a new string instance in memory. For extremely long strings or high-frequency loops, a StringBuilder approach is used internally to maintain performance.
 - **No Un-escaping**: This is a one-way transformation. It does not verify if a string is already escaped; it will apply escapes to any matching character regardless of existing context.
 
+---
+
+### `Hasher` Helper Class
+
+#### Overview
+The **`Hasher`** static class is the authoritative implementation of the **FNV-1a (Fowler–Noll–Vo)** hash algorithm within PsigenVision Utilities. It provides methods for hashing individual characters and strings, as well as **mixing** pre-existing hash values — making it the foundation for deterministic integer-based ID generation.
+
+All methods are implemented as extension methods. The `seed` parameter on hashing methods defaults to `FNV_OFFSET_BASIS` for standalone use, but can accept a running hash value to **chain** multiple inputs into a single hash.
+
+> See: [FNV Hash Function (Wikipedia)](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
+
+#### Methods
+
+##### `HashFNV1a(char)`
+```c#
+public static uint HashFNV1a(this char ch, uint seed = Hasher.FNV_OFFSET_BASIS)
+```
+
+- **Description**: Computes the FNV-1a hash for a single character. Can be seeded with a running hash to chain multiple characters.
+- **Parameters**:
+  - `char ch`: The character to hash.
+  - `uint seed`: The running hash to continue from, or `FNV_OFFSET_BASIS` to start fresh.
+- **Returns**: `uint` — the resulting hash.
+
+---
+
+##### `HashIntFNV1a(char)`
+```c#
+public static int HashIntFNV1a(this char ch, uint seed = Hasher.FNV_OFFSET_BASIS)
+```
+
+- **Description**: Signed `int` wrapper over `HashFNV1a(char)`. Useful when a signed integer result is required (e.g. for use with `IHaveID<T>`).
+- **Returns**: `int` — the resulting hash, reinterpreted as a signed integer.
+
+---
+
+##### `HashFNV1a(string)`
+```c#
+public static uint HashFNV1a(this string str, uint seed = Hasher.FNV_OFFSET_BASIS)
+```
+
+- **Description**: Computes the FNV-1a hash for a string by iterating over each character and chaining the result.
+- **Parameters**:
+  - `string str`: The string to hash.
+  - `uint seed`: The initial hash value.
+- **Returns**: `uint` — the resulting hash.
+
+---
+
+##### `HashIntFNV1a(string)`
+```c#
+public static int HashIntFNV1a(this string str, uint seed = Hasher.FNV_OFFSET_BASIS)
+```
+
+- **Description**: Signed `int` wrapper over `HashFNV1a(string)`.
+- **Returns**: `int` — the resulting hash, reinterpreted as a signed integer.
+
+---
+
+##### `HashMixFNV1a(uint, uint)`
+```c#
+public static uint HashMixFNV1a(this uint currentHash, uint innerHash)
+```
+
+- **Description**:
+  Folds an existing hash value into a running hash by processing each of its 4 bytes individually through the FNV-1a algorithm. This is mathematically superior to a simple XOR of the two final values, as it preserves bit distribution across the full output.
+
+- **Parameters**:
+  - `uint currentHash`: The running hash to fold into.
+  - `uint innerHash`: The hash value to be mixed in.
+- **Returns**: `uint` — the combined hash.
+
+---
+
+##### `HashMixFNV1a(uint, int)`
+```c#
+public static uint HashMixFNV1a(this uint currentHash, int value)
+```
+
+- **Description**: Overload of `HashMixFNV1a` that accepts a signed integer (e.g. a raw struct field like `Count` or an enum value). Delegates to the `uint` overload internally.
+- **Returns**: `uint` — the combined hash.
+
+---
+
+#### Usage Example
+The following demonstrates building a composite deterministic ID from a type name, a nested struct's ID, and a raw integer field:
+
+```c#
+public int GetID()
+{
+    // Start the hash with the type's full name
+    uint hash = typeof(MyCommandType).FullName.HashFNV1a();
+
+    // Mix in a nested struct's pre-computed ID
+    hash = hash.HashMixFNV1a(Signature.ID);
+
+    // Mix in a raw integer member
+    hash = hash.HashMixFNV1a(Priority);
+
+    return unchecked((int)hash);
+}
+```
+
+#### Notes
+- Prefer `HashMixFNV1a` over directly XOR-ing two hash values — processing byte-by-byte yields better distribution and fewer collisions.
+- The `seed` parameter enables manual chaining when you need to hash several values in sequence without building an intermediate string.
 
 ---
 

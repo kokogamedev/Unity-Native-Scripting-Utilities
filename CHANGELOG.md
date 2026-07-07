@@ -130,3 +130,21 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Fixed reversed safety check in `TryParseCollectionAccess` in which failure occurred when a collection index was successfully parsed.
 
 ---
+## [0.9.5] - 2026-05-17
+
+### Added `Hasher` to **Core Utilities**
+- Moved `StringExtensions.ComputeFNV1aHash` to new helper class `Hasher` and renamed to `HashFNV1a`.
+- Introduced `IsValidMemberName` for validating C# member names against naming conventions and reserved keywords. 
+- Added FNV-1a hash extensions methods for string and char types in overloads that return int or uint (`HashFNV1a` and `HashIntFNV1a`). 
+- Added `HashMix` overloads that combine existing hash with another hash to form a sort of nested hash result via an algorithm in which each byte of the nested hash is processed individually to ensure a well-distributed result.
+
+### Added `LifecycleTracker` to **Core Utilities**
+- Added static helper class `LifecycleTracker` to centralize both editor and runtime/build lifecycle handling such as application quit (via applicationQuitting event) tied either to EditorApplication.quitting in the case of the Unity Editor or Application.quitting in the case of runtime/build.
+
+### Added `SceneTracker` to **Core Utilities**
+- Added static utility class `SceneTracker` for tracking the status of scenes in a Unity application (contained in build settings). It maintains scene status information, and it offers methods and events for querying and monitoring changes in scene states.
+
+### Added `NativeSingelton` to **Programming Patterns**
+- Added abstract base class `NativeSingleton` to provides a generic singleton implementation for pure C# types that require a single instance featuring lazy instantiation and automatic disposal on application quit (also supporting manual disposal).
+
+
