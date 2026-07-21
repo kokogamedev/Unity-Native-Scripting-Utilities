@@ -147,4 +147,12 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 ### Added `NativeSingelton` to **Programming Patterns**
 - Added abstract base class `NativeSingleton` to provides a generic singleton implementation for pure C# types that require a single instance featuring lazy instantiation and automatic disposal on application quit (also supporting manual disposal).
 
+---
+## [0.9.7] - 2026-07-21
 
+### Added new **User-Defined Types (UDT) Module** with Value Override UDTs
+- Introduced new module to the Native Utilities package aimed at the introduction of various User-Defined Types (UDTs) whose use extends beyond any singular application requirement, offering a flexible and efficient way to handle complex data structures and types within Unity projects.
+- Introduced new Value Override UDTs to UDT module. These UDTs are designed to encapsulate binary value functionality (default vs override value) of various types into a low-level data structure. 
+- Introduced custom inspector (custom property drawer) for Value Override UDTs.
+
+---

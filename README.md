@@ -92,21 +92,23 @@ Here’s a peek into what this library offers:
 - **Thread Safety:** Ensures thread-safe access to singleton instances.
 
 ### 13. **Editor Scripting Utilities**
-### `EditorExtensions`
+#### `EditorExtensions`
 - **Dynamic Value Retrieval/Assignment:** Provides methods to get or set values in serialized properties.
 - **Type Information:** Retrieve `System.Type` of serialized fields.
 - **Boxed Value Handling:** Update and manipulate `SerializedProperty.boxedValue` for nested struct serialization.
 
-### `ReflectionExtensions`
+#### `ReflectionExtensions`
 - **Advanced Field Reflection:** Access nested fields or array elements using dot-separated paths.
 - **Field Mapping:** Retrieve field stacks for dynamic traversal.
 - **Collection Parsing:** Handle array or IList elements for reflection.
 - **Direct Value Assignment:** Set values inside structs or arrays with path-based navigation.
 
-### `EnumExtensions`
+#### `EnumExtensions`
 - **Index-based Enums:** Retrieve enums dynamically using their order index.
 - **Unified Enum Handling:** Resolve enums for fields across different structures.
 
+### 14. **User-Defined Types (UDTs)**
+- **Value Override UDTs:** Encapsulate binary value functionality (default vs override value) of various types into a low-level data structure.
 
 ---
 
