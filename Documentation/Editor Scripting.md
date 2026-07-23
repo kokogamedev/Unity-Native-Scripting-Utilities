@@ -84,6 +84,19 @@ property.SetValue(42);
 Debug.Log("Value updated to 42.");
 ```
 
+#### **GetValueText**
+Extract and return the text-version of the value retained within the serialized property.
+
+```csharp
+public static string GetValueText(this SerializedProperty valueProp)
+```
+
+**Example Usage:**
+```csharp
+//--------Draw Immutable Display Field for Default--------
+EditorGUI.LabelField(_Rect.Default, valueProp.GetValueText());
+```
+
 #### **GetSystemType**
 Utilizes reflection to get the `System.Type` of a field encapsulated by the `SerializedProperty`.
 

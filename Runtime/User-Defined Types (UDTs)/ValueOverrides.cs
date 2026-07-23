@@ -2123,6 +2123,8 @@ namespace PsigenVision.Utilities
         public static CharOverride operator !(CharOverride valueOverride) => new(!valueOverride.doOverride, valueOverride);
     }
     
+    #if UNITY_6000_2_OR_NEWER
+    
     /// <summary>
     /// Represents a structure that conditionally overrides a EntityId value.
     /// </summary>
@@ -2222,4 +2224,6 @@ namespace PsigenVision.Utilities
         /// </remarks>
         public static EntityIdOverride operator !(EntityIdOverride valueOverride) => new(!valueOverride.doOverride, valueOverride);
     }
+    
+    #endif
 }

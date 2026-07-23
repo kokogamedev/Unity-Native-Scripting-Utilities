@@ -24,7 +24,9 @@ namespace PsigenVision.Utilities.Editor
     [CustomPropertyDrawer(typeof(RenderingLayerMaskOverride))]
     [CustomPropertyDrawer(typeof(Hash128Override))]
     [CustomPropertyDrawer(typeof(CharOverride))]
+#if UNITY_6000_2_OR_NEWER
     [CustomPropertyDrawer(typeof(EntityIdOverride))]
+#endif
     [CustomPropertyDrawer(typeof(AnimationCurveOverride))]
     public class ValueOverrideDrawer : PropertyDrawer
     {
@@ -66,8 +68,10 @@ namespace PsigenVision.Utilities.Editor
                 (Default: (label: "Default", path: "defaultValue", propertyHeight: EditorGUIUtility.singleLineHeight), Override: (label: "Override", path: "overrideValue", propertyHeight: 2*EditorGUIUtility.singleLineHeight))
             },
             {typeof(GradientOverride), DEFAULT},
-            {typeof(RenderingLayerMaskOverride), DEFAULT},
-            {typeof(EntityIdOverride), DEFAULT}, { typeof(AnimationCurveOverride), DEFAULT }
+            {typeof(RenderingLayerMaskOverride), DEFAULT}
+            #if UNITY_6000_2_OR_NEWER
+            ,{typeof(EntityIdOverride), DEFAULT}, { typeof(AnimationCurveOverride), DEFAULT }
+            #endif
         };
 
         private static (float posScale, float widthScale) DoOverrideRect = (posScale: 0f, widthScale: 0.25f);
@@ -187,7 +191,7 @@ namespace PsigenVision.Utilities.Editor
                 else
                 {
                     //--------Draw Immutable Display Field for Default--------
-                    EditorGUI.LabelField(_Rect.Default, GetReadOnlyValue(valueProp));
+                    EditorGUI.LabelField(_Rect.Default, valueProp.GetValueText());
                 }
 
                 var changeDefaultButtonStyle = new GUIStyle(GUI.skin.button)
@@ -198,11 +202,11 @@ namespace PsigenVision.Utilities.Editor
                     },
                     active =
                     {
-                        textColor = resettingDefault ? Color.greenYellow : defaultButtonTextColor.active
+                        textColor = resettingDefault ? Color.green : defaultButtonTextColor.active
                     },
                     focused =
                     {
-                        textColor = resettingDefault ? Color.greenYellow : defaultButtonTextColor.focused
+                        textColor = resettingDefault ? Color.green : defaultButtonTextColor.focused
                     }
                 };
                 
@@ -291,39 +295,5 @@ namespace PsigenVision.Utilities.Editor
             
             return false;
         }
-        
-        public static string GetReadOnlyValue(SerializedProperty valueProp) => valueProp.propertyType switch
-            {
-                SerializedPropertyType.Boolean => valueProp.boolValue.ToString(),
-                SerializedPropertyType.Integer => valueProp.intValue.ToString(),
-                SerializedPropertyType.Float => valueProp.floatValue.ToString(),
-                SerializedPropertyType.String => valueProp.stringValue,
-                SerializedPropertyType.Color => valueProp.colorValue.ToString(),
-                SerializedPropertyType.Vector2 => valueProp.vector2Value.ToString(),
-                SerializedPropertyType.Vector3 => valueProp.vector3Value.ToString(),
-                SerializedPropertyType.Quaternion => valueProp.quaternionValue.ToString(),
-                SerializedPropertyType.Generic => valueProp.objectReferenceValue.ToString(),
-                SerializedPropertyType.ObjectReference => valueProp.objectReferenceValue.ToString(),
-                SerializedPropertyType.LayerMask => valueProp.intValue.ToString(),
-                SerializedPropertyType.Enum => valueProp.enumValueFlag.ToString(),
-                SerializedPropertyType.Vector4 => valueProp.vector4Value.ToString(),
-                SerializedPropertyType.Rect => valueProp.rectValue.ToString(),
-                SerializedPropertyType.ArraySize => valueProp.arraySize.ToString(),
-                SerializedPropertyType.Character => valueProp.stringValue,
-                SerializedPropertyType.AnimationCurve => valueProp.animationCurveValue.ToString(),
-                SerializedPropertyType.Bounds => valueProp.boundsValue.ToString(),
-                SerializedPropertyType.Gradient => valueProp.gradientValue.ToString(),
-                SerializedPropertyType.ExposedReference => valueProp.objectReferenceValue.ToString(),
-                SerializedPropertyType.FixedBufferSize => valueProp.fixedBufferSize.ToString(),
-                SerializedPropertyType.Vector2Int => valueProp.vector2IntValue.ToString(),
-                SerializedPropertyType.Vector3Int => valueProp.vector3IntValue.ToString(),
-                SerializedPropertyType.RectInt => valueProp.rectIntValue.ToString(),
-                SerializedPropertyType.BoundsInt => valueProp.boundsIntValue.ToString(),
-                SerializedPropertyType.ManagedReference => valueProp.managedReferenceValue.ToString(),
-                SerializedPropertyType.Hash128 => valueProp.hash128Value.ToString(),
-                SerializedPropertyType.RenderingLayerMask => valueProp.intValue.ToString(),
-                SerializedPropertyType.EntityId => valueProp.entityIdValue.ToString(),
-                _ => valueProp.ToString()
-            };
-        }
+    }
 }

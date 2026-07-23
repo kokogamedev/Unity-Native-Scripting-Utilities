@@ -156,3 +156,16 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Introduced custom inspector (custom property drawer) for Value Override UDTs.
 
 ---
+## [0.9.8] - 2026-07-23
+
+### ValueOverrides UDT Update
+- Encapsulated EntityIdOverride UDT and its related references (e.g. in property drawer) in `#if UNITY_6000_2_OR_NEWER` directive as the EntityId type is not available in Unity versions prior to 6.2.
+
+### EditorExtensions Method: GetValueText
+- Added `GetValueText` method to `SerializedProperty` extension class. This method extracts and returns the text-version of the value retained within the serialized property.
+
+### Documentation
+- Corrected some documentation errors.
+- Adjusted the README to incorporate optional scoped registry installation instructions.
+
+---

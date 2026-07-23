@@ -114,6 +114,13 @@ Here’s a peek into what this library offers:
 
 ## Installation
 
+The following two options are available for installing this package in the Unity Package Manager:
+1. Github Link (recommended)
+2. Scoped Registry 
+
+Although both methods are viable, we recommend using the Github Link method as the the scoped registry is only hosted when my personal PC is active (verdaccio server).
+
+### Installation via Github Link in Unity Package Manager
 To use the utilities in your Unity project:
 
 1. Install ["com.psigenvision.utilities.native"](https://github.com/kokogamedev/Unity-Native-Scripting-Utilities.git) via Git URL or a local Unity folder.
@@ -121,6 +128,25 @@ To use the utilities in your Unity project:
    ```c#
    using PsigenVision.Utilities.Randomization;
    ```
+
+### Installation via Scoped Registry in Unity Package Manager
+To use the utilities in your Unity project:
+
+1. Add the PsigenVision scoped registry to your project via project settings or direct modification of the `.manifest` file:
+   - You can add the registry via `Project Settings > Package Manager > Scoped Registries` entering the following:
+     - Name: PsigenVision
+     - URL: https://registry.psigenvision.com/
+     - Scope: com.psigenvision
+   - You can also add the registry directly to the `.manifest` file by adding the following lines:
+     ```json
+     "scopedRegistries": [
+       {
+         "name": "PsigenVision",
+         "url": "https://registry.psigenvision.com/",
+         "scopes": ["com.psigenvision"]
+       }
+     ]
+     ```
 
 ---
 

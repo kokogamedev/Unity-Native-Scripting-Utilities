@@ -12,6 +12,11 @@
       "displayName": "Sorted List Utils Test",
       "description": "An example of the sorted list extension methods implemented using custom testing script.",
       "path": "Samples~/Sorted List Example"
+    },
+    {
+      "displayName": "Value Override UDT Scriptable Object",
+      "description": "A scriptable object demonstrating the custom property drawers of the value override UDTs in the inspector.",
+      "path": "Samples~/Value UDT Override SO"
     }
   ]
 }

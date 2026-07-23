@@ -132,9 +132,6 @@ All UDTs _except for the generic `ValueOverride<T>`_ support the custom property
 
 _Note: The generic ValueOverride<T> does not currently have a custom drawer due to Unity limitations._
 
----  
-**Here is the API documentation** generated in your exact requested format.
-
 ---
 
 ### API
@@ -293,7 +290,7 @@ While the generic `ValueOverride<T>` works in code, Unity’s inspector and seri
 
 ##### Key Features
 - Identical public API to `ValueOverride<string>`
-- Custom Inspector support (as mentioned in your example)
+- Custom Inspector support (as mentioned in a previous example)
 - Full serialization compatibility
 
 ---

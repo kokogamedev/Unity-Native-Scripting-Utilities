@@ -54,7 +54,7 @@ namespace PsigenVision.Utilities.Editor
                     //Debug.Log($"Value property changed to {valueProp.quaternionValue}");
                     break;
                 case SerializedPropertyType.Generic:
-                    success = modifiedObject.TrySetValueViaPath(type, path, valueProp.objectReferenceValue);
+                    success = modifiedObject.TrySetValueViaPath(type, path, valueProp.boxedValue);
                     break;
                 case SerializedPropertyType.ObjectReference:
                     success = modifiedObject.TrySetValueViaPath(type, path, valueProp.objectReferenceValue);
@@ -113,9 +113,11 @@ namespace PsigenVision.Utilities.Editor
                 case SerializedPropertyType.RenderingLayerMask:
                     success = modifiedObject.TrySetValueViaPath(type, path, valueProp.intValue);
                     break;
+#if UNITY_6000_2_OR_NEWER
                 case SerializedPropertyType.EntityId:
                     success = modifiedObject.TrySetValueViaPath(type, path, valueProp.entityIdValue);
                     break;
+#endif
                 default:
                     success = false;
                     break;
@@ -240,13 +242,56 @@ namespace PsigenVision.Utilities.Editor
                 case SerializedPropertyType.RenderingLayerMask:
                     property.SetValue(valueProp.intValue);
                     break;
+#if UNITY_6000_2_OR_NEWER
                 case SerializedPropertyType.EntityId:
                     property.SetValue(valueProp.entityIdValue);
                     break;
+#endif
                 default: break;
             }
             return property.boxedValue;
         }
+        
+        /// <summary>
+        /// Obtain a string representation of the value of a serialized property.
+        /// </summary>
+        /// <param name="valueProp"></param>
+        /// <returns></returns>
+        public static string GetValueText(this SerializedProperty valueProp) => valueProp.propertyType switch
+            {
+                SerializedPropertyType.Boolean => valueProp.boolValue.ToString(),
+                SerializedPropertyType.Integer => valueProp.intValue.ToString(),
+                SerializedPropertyType.Float => valueProp.floatValue.ToString(),
+                SerializedPropertyType.String => valueProp.stringValue,
+                SerializedPropertyType.Color => valueProp.colorValue.ToString(),
+                SerializedPropertyType.Vector2 => valueProp.vector2Value.ToString(),
+                SerializedPropertyType.Vector3 => valueProp.vector3Value.ToString(),
+                SerializedPropertyType.Quaternion => valueProp.quaternionValue.ToString(),
+                SerializedPropertyType.Generic => valueProp.objectReferenceValue.ToString(),
+                SerializedPropertyType.ObjectReference => valueProp.objectReferenceValue.ToString(),
+                SerializedPropertyType.LayerMask => valueProp.intValue.ToString(),
+                SerializedPropertyType.Enum => valueProp.enumValueFlag.ToString(),
+                SerializedPropertyType.Vector4 => valueProp.vector4Value.ToString(),
+                SerializedPropertyType.Rect => valueProp.rectValue.ToString(),
+                SerializedPropertyType.ArraySize => valueProp.arraySize.ToString(),
+                SerializedPropertyType.Character => valueProp.stringValue,
+                SerializedPropertyType.AnimationCurve => valueProp.animationCurveValue.ToString(),
+                SerializedPropertyType.Bounds => valueProp.boundsValue.ToString(),
+                SerializedPropertyType.Gradient => valueProp.gradientValue.ToString(),
+                SerializedPropertyType.ExposedReference => valueProp.objectReferenceValue.ToString(),
+                SerializedPropertyType.FixedBufferSize => valueProp.fixedBufferSize.ToString(),
+                SerializedPropertyType.Vector2Int => valueProp.vector2IntValue.ToString(),
+                SerializedPropertyType.Vector3Int => valueProp.vector3IntValue.ToString(),
+                SerializedPropertyType.RectInt => valueProp.rectIntValue.ToString(),
+                SerializedPropertyType.BoundsInt => valueProp.boundsIntValue.ToString(),
+                SerializedPropertyType.ManagedReference => valueProp.managedReferenceValue.ToString(),
+                SerializedPropertyType.Hash128 => valueProp.hash128Value.ToString(),
+                SerializedPropertyType.RenderingLayerMask => valueProp.intValue.ToString(),
+#if UNITY_6000_2_OR_NEWER
+                SerializedPropertyType.EntityId => valueProp.entityIdValue.ToString(),
+#endif
+                _ => valueProp.ToString()
+            };
         
         /// <summary>
         /// Retrieves a FieldInfo object for a field within a type, including fields in nested types,
