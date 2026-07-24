@@ -169,3 +169,17 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Adjusted the README to incorporate optional scoped registry installation instructions.
 
 ---
+
+## [0.9.9] - 2026-07-24
+
+### Fixes: Improper Handling of Character and Generic SerializedProperty Types in Editor Utitilies
+- All methods that set/get/convert a serialized property based on its contained type (`GetBoxedValue`, `SetBoxedValue`, `TrySetBoxedValueViaPath`, `GetValueText`) in the case that it is of type `SerializedPropertyType.Character` incorrectly attempted to extract `stringValue` from the value's SerializedProperty. Apparently, this is not supported in Unity, and the value had to be extracted from `boxedValue`.
+- All methods that set/get/convert a serialized property based on its contained type (`GetBoxedValue`, `SetBoxedValue`, `TrySetBoxedValueViaPath`, `GetValueText`) in the case that it is of type `SerializedPropertyType.Generic` incorrectly attempted to extract `objectReferenceValue` from the value's SerializedProperty. These represent pure C# types (non-UnityEngine.Object) and therefore we must extract `boxedValue` instead.
+
+### New Editor Script Utils Class: StructGUI
+- Introduced a new class `StructGUI` within the `EditorExtensions` namespace. This class provides methods for updating and retrieving values from serialized properties that specifically represent structs using tried and tested practices to handle value semantics. Methods within this class utilize a combination of reflection and native UnityEditor practices under the hood to overcome modification-persistence issues inherent to editor scripting with structs. 
+- Introduced `TryApplyModifiedProperty` to `StructGUI` class. This method attempts to apply modifications to the field of a struct to both that field and the struct instance to which it belongs via the field's modified SerializedProperty.
+- Introduced `TryPropertyField` to `StructGUI` class. This method attempts to draw a struct's field as a property field and sync the changes to the outer struct property.
+
+
+---

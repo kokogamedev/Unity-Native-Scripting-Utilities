@@ -8,7 +8,7 @@ The utilities include:
 1. **`EditorExtensions`** - Focused on managing `SerializedProperty` objects and interacting with Unity's serialized system.
 2. **`ReflectionExtensions`** - Enables deep reflection, such as accessing nested fields, traversing object hierarchies, and resolving collections.
 3. **`EnumExtensions`** - Adds utility methods for working with enum values dynamically using ordered index rather than int-value.
-
+4. **`StructGUI`** - Provides methods for updating and retrieving values from serialized properties that specifically represent structs using tried and tested practices to handle value semantics. 
 
 ---
 
@@ -300,6 +300,61 @@ if (!anyTypeStruct.TryGetEnumByIndex("type", currentIndex, out var castedValueTy
 	return false;
 }
 ```
+
+---
+## `StructGUI`
+
+### **Overview**
+The `StructGUI` class is intended to be analogous to the `EditorGUI` class in its handling of editor scripting, but specifically geared towards structs, or more generally, value semantics. It is designed to encapsulate tried and tested methods for handling value semantics within serialized properties that specifically represent structs. Methods within this class utilize a combination of reflection and native UnityEditor practices under the hood to overcome modification-persistence issues inherent to editor scripting with structs. 
+
+### **Methods**
+
+#### **TryApplyModifiedProperty/ApplyModifiedProperty**
+Attempt to apply modifications to the field of a struct to both that field and the struct instance to which it belongs via the field's modified SerializedProperty.
+
+```csharp
+bool TryApplyModifiedProperty(SerializedProperty fieldProp, string fieldName, SerializedProperty outerStructProperty)
+bool ApplyModifiedProperty(this SerializedProperty fieldProp, string fieldName, SerializedProperty outerStructProperty)
+```
+
+#### Example Usage
+
+```csharp
+//If any changes were made to the field property, attempt to apply the modified value to the outer struct property
+if (!TryApplyModifiedProperty(fieldProperty, fieldName, outerStructProperty))
+	//If the modified value of the field property could not be applied to the outer struct property, log an error
+	Debug.LogError(failureMessage ?? "Failed to update struct field property");
+```
+
+```csharp
+//If any changes were made to the field property, attempt to apply the modified value to the outer struct property
+if (fieldProperty.ApplyModifiedProperty(fieldName, outerStructProperty))
+	//If the modified value of the field property could not be applied to the outer struct property, log an error
+	Debug.LogError(failureMessage ?? "Failed to update struct field property");
+```
+
+
+#### **TryPropertyField/PropertyField**
+Attempt to draw a struct's field as a property field and sync the changes to the outer struct property.
+
+```csharp
+bool TryPropertyField(Rect fieldRect, string fieldName, SerializedProperty fieldProperty, SerializedProperty outerStructProperty, GUIContent label, bool includeChildren = false, string failureMessage = null)
+bool PropertyField(this SerializedProperty fieldProp, Rect fieldRect, string fieldName, SerializedProperty outerStructProperty, GUIContent label, bool includeChildren = false, string failureMessage = null)
+```
+```csharp
+bool TryPropertyField(Rect fieldRect, string fieldName, SerializedProperty fieldProperty, SerializedProperty outerStructProperty, GUIContent label, bool includeChildren = false, string failureMessage = null)
+bool PropertyField(this SerializedProperty fieldProp, Rect fieldRect, string fieldName, SerializedProperty outerStructProperty, GUIContent label, bool includeChildren = false, string failureMessage = null)
+```
+#### Example Usage
+
+```csharp
+StructGUI.TryPropertyField(fieldRects.mass,  fieldNames.mass, massProp, containingProperty, "Failed to update mass");
+StructGUI.TryPropertyField(fieldRects.linearDamping, fieldNames.linearDamping, linearDampingProp, containingProperty, "Failed to update linear damping");
+
+angularDampingProp.PropertyField(fieldRects.angularDamping, fieldNames.angularDamping, containingProperty, "Failed to update angular damping");
+centerOfMassProp.PropertyField(fieldRects.centerOfMass,  fieldNames.centerOfMass, containingProperty, "Failed to update center of mass");
+```
+
 
 ---
 

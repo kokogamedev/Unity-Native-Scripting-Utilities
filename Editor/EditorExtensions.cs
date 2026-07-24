@@ -75,7 +75,8 @@ namespace PsigenVision.Utilities.Editor
                     success = modifiedObject.TrySetValueViaPath(type, path, valueProp.arraySize);
                     break;
                 case SerializedPropertyType.Character:
-                    success = modifiedObject.TrySetValueViaPath(type, path, valueProp.stringValue);
+                    success = modifiedObject.TrySetValueViaPath(type, path, 
+                        (valueProp.boxedValue is char charValue ) ? charValue : valueProp.boxedValue);
                     break;
                 case SerializedPropertyType.AnimationCurve:
                     success = modifiedObject.TrySetValueViaPath(type, path, valueProp.animationCurveValue);
@@ -183,7 +184,7 @@ namespace PsigenVision.Utilities.Editor
                     //Debug.Log($"Value property changed to {valueProp.quaternionValue}");
                     break;
                 case SerializedPropertyType.Generic:
-                    property.SetValue(valueProp.objectReferenceValue);
+                    property.SetValue(valueProp.boxedValue);
                     break;
                 case SerializedPropertyType.ObjectReference:
                     property.SetValue(valueProp.objectReferenceValue);
@@ -204,7 +205,7 @@ namespace PsigenVision.Utilities.Editor
                     property.SetValue(valueProp.arraySize);
                     break;
                 case SerializedPropertyType.Character:
-                    property.SetValue(valueProp.stringValue);
+                    property.SetValue(valueProp.boxedValue is char charValue ? charValue : valueProp.boxedValue);
                     break;
                 case SerializedPropertyType.AnimationCurve:
                     property.SetValue(valueProp.animationCurveValue);
@@ -267,14 +268,14 @@ namespace PsigenVision.Utilities.Editor
                 SerializedPropertyType.Vector2 => valueProp.vector2Value.ToString(),
                 SerializedPropertyType.Vector3 => valueProp.vector3Value.ToString(),
                 SerializedPropertyType.Quaternion => valueProp.quaternionValue.ToString(),
-                SerializedPropertyType.Generic => valueProp.objectReferenceValue.ToString(),
+                SerializedPropertyType.Generic => valueProp.boxedValue?.ToString(),
                 SerializedPropertyType.ObjectReference => valueProp.objectReferenceValue.ToString(),
                 SerializedPropertyType.LayerMask => valueProp.intValue.ToString(),
                 SerializedPropertyType.Enum => valueProp.enumValueFlag.ToString(),
                 SerializedPropertyType.Vector4 => valueProp.vector4Value.ToString(),
                 SerializedPropertyType.Rect => valueProp.rectValue.ToString(),
                 SerializedPropertyType.ArraySize => valueProp.arraySize.ToString(),
-                SerializedPropertyType.Character => valueProp.stringValue,
+                SerializedPropertyType.Character => (valueProp.boxedValue is char charValue ) ? charValue.ToString() : "",
                 SerializedPropertyType.AnimationCurve => valueProp.animationCurveValue.ToString(),
                 SerializedPropertyType.Bounds => valueProp.boundsValue.ToString(),
                 SerializedPropertyType.Gradient => valueProp.gradientValue.ToString(),

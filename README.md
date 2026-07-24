@@ -107,6 +107,11 @@ Here’s a peek into what this library offers:
 - **Index-based Enums:** Retrieve enums dynamically using their order index.
 - **Unified Enum Handling:** Resolve enums for fields across different structures.
 
+#### `StructGUI`
+- **Struct Property Fields and Modification:** 
+  - Provide methods for serializing non-UnityEngine.Object structs. 
+  - Addressing common issues with persisting changes in the editor when serializing structs with custom property drawers and editors due to the nature of value semantics.   
+
 ### 14. **User-Defined Types (UDTs)**
 - **Value Override UDTs:** Encapsulate binary value functionality (default vs override value) of various types into a low-level data structure.
 
