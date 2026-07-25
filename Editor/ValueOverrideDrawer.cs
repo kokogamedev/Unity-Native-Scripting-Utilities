@@ -183,8 +183,6 @@ namespace PsigenVision.Utilities.Editor
                                 EditorGUI.EndProperty();
                                 return;
                             }
-
-                            resettingDefault = !resettingDefault;
                         }
                     }
                 }
@@ -212,6 +210,10 @@ namespace PsigenVision.Utilities.Editor
                 
                 if (GUI.Button(_Rect.Button, "Change", changeDefaultButtonStyle))
                     resettingDefault = !resettingDefault;
+                
+                //Exit resettingDefault mode when the user presses any of the "escape" keys (Escape, Enter, Return)
+                if (resettingDefault && Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter))
+                    resettingDefault = false;
             }
 
 
@@ -284,9 +286,11 @@ namespace PsigenVision.Utilities.Editor
         }
         private bool TryUpdateValue(SerializedProperty outerProperty, SerializedProperty valueProp, bool doOverride)
         {
-            var currentType = valueProp.GetSystemType();
+            //Get the type of the current value override UDT
+            var currentType = outerProperty.GetSystemType();
+            //Get the property data for this value override UDT (specifically the field path/name information)
             var currentData = (doOverride) ? Data[currentType].Override : Data[currentType].Default;
-            
+            //Try to set the value of the value override UDT struct's field using the value of the field's modified property
             if (outerProperty.TrySetBoxedValueViaPath(outerProperty.GetSystemType(), currentData.path, valueProp, out var modifiedObject))
             {
                 outerProperty.boxedValue = modifiedObject;

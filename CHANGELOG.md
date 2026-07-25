@@ -181,5 +181,8 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Introduced `TryApplyModifiedProperty` to `StructGUI` class. This method attempts to apply modifications to the field of a struct to both that field and the struct instance to which it belongs via the field's modified SerializedProperty.
 - Introduced `TryPropertyField` to `StructGUI` class. This method attempts to draw a struct's field as a property field and sync the changes to the outer struct property.
 
+### Fix Value Override UDT Property Drawer
+- Fixed the Value Override UDT Property Drawer to properly exit resettingDefault mode when the user presses any of the "escape" keys (Escape, Enter, Return) rather than automatically when a modification is made.
+- Fixed TryUpdateValue method which incorrectly used the inner property's type rather than the outer property's type as the key for locating the necessary field path in the internally maintained dictionary.
 
 ---
