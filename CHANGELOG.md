@@ -186,3 +186,48 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Fixed TryUpdateValue method which incorrectly used the inner property's type rather than the outer property's type as the key for locating the necessary field path in the internally maintained dictionary.
 
 ---
+
+## [0.9.10] - 2026-08-07
+
+### Addition: Editor Scripting Utilities - StructGUI
+- Introduced `string PrependArrayAccessPath(string fieldAccessPath, SerializedProperty previousOuterProperty, out SerializedProperty newOuterProperty)` method. This method prepends the provided dot-separated access path with the encapsulating collection index-access portion using the serialized property for that array (e.g. "leftWheel.hasVisual" becomes "axles[1].leftWheel.hasVisual") and also outputs the SerializedProperty of the array instance's encapsulator.
+
+### Changes: Editor Scripting Utilities - Reflection Utilities
+#### Changed: `GetFieldViaPath` Method
+- Introduce special handling for property-access rather than field-access in the dot-separated path.
+- Added optional `flags` parameter to specify binding flags used to search for the field - otherwise assumed to be public, non-public, and instance.
+
+#### Changed: `IListMemberPointer`struct
+- Introduced an additional object member `Encapsulator` which contains a reference to the object encapsulating the collection.
+- Modified constructor to receive the collection's encapsulator object rather than the collection object itself. The initialization of the `Container` member is done within the constructor, and double-checked in the `GetValue` and `SetValue` methods whenever called.
+- Changed name to `ListMemberPointer` to remove left-over interface naming.
+
+### Fixes: Editor Scripting Utilities
+
+#### Fixes: StructGUI
+**Methods Changed**: `public static bool TryApplyModifiedProperty(SerializedProperty fieldProp, string fieldName, SerializedProperty outerStructProperty)`
+- Due to the way property drawers handle arrays (the property passed in is an element access to the array rather than the instance contained within it), that special case was addressed by rolling back the field-access path to include the array access segment, and the outer property rolled back to the object containing that array (e.g. "leftWheel.hasVisual" becomes "axles[1].leftWheel.hasVisual" and the outer serialized property is now for the WheelHub instance containing that axles array).
+
+
+#### Fixes: ReflectionExtensions
+**Methods Fixed**:
+1. `public static bool GetFieldMapsViaPath(...)`
+2. `public static bool TrySetValueViaPath(this object target, System.Type type, string path, object value)`
+
+**Classes/Structs Fixed**:
+1. `IListMemberPointer`
+
+##### Fixed: `IListMemberPointer`
+
+- Fixed incorrect usage of the `Container` object member, which assumed it could both be used to retrieve/set a value from that collection as well as cache a reference to the collection. The former role belongs to the collection's encapsulator, now cached in the `Encapsulator` member.
+- Fixed `GetValue`, `SetValue`, and `OverrideArrayIndex' to retrieve the value of the collection from the `Encapsulator` rather than the `Container`.
+
+##### Fixed: `GetFieldMapsViaPath`
+- Fixed incorrect exit case for collection handling in which an `IList` implementation is used as a condition for an array.
+- Fixed incorrect initialization of collection object via wrapping in a `ListMemberPointer` instance such that it passes in the collection's encapsulator rather than the collection itself.
+
+##### Fixed: `TrySetValueViaPath`
+- Fixed incorrect use of reflection to retrieve a field from the containing object in which the object of the field itself was passed in rather than its encapsulator.
+- Accounted for unhandled case in which the root field in the dot-separated path was a collection.
+
+---

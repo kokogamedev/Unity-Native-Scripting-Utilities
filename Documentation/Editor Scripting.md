@@ -132,8 +132,8 @@ Although index-accessed collections are supported in the dot-separated path, the
 
 ### Key Methods and Classes:
 
-#### **IListMemberPointer**
-Encapsulates information about a member of an `IList` via its `FieldInfo`, index in the collection, and the collection object with which it is associated. 
+#### **ListMemberPointer**
+Encapsulates information about a member of an `IList` via its `FieldInfo`, index in the collection, and the object in which its instance is encapsulated. 
 
 **Methods**:
 - `object GetValue()`: Fetches the value from the list/field.
@@ -144,7 +144,7 @@ Encapsulates information about a member of an `IList` via its `FieldInfo`, index
 *Dynamically resolves a `FieldInfo` for a dot-separated field path.*
 
 ```csharp
-System.Reflection.FieldInfo GetFieldViaPath(this System.Type type, string path);
+System.Reflection.FieldInfo GetFieldViaPath(this System.Type type, string path, BindingFlags flags =  = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 ```
 
 **Example Usage:**

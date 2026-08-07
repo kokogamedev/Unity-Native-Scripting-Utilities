@@ -13,14 +13,12 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="type">The type from which the field will be resolved.</param>
         /// <param name="path">A dot-separated string representing the hierarchy of fields to traverse (e.g., "Field1.SubField.ArrayField[0]").</param>
+        /// <param name="flags">Optionally indicate which binding flags used to search for the field - otherwise assumed to be public, non-public, and instance.</param>
         /// <returns>A FieldInfo object representing the resolved field, or null if the field cannot be found or the path is invalid.</returns>
         /// <remarks>Although index-accessed collections are supported in the path, the associated collection must be an array or implement IList,
         /// and the format for access must be "collection[i]." Furthermore, this method returns the field info apart from its instance, so the "i'th" element is never accessed.</remarks>
-        public static System.Reflection.FieldInfo GetFieldViaPath(this System.Type type, string path)
+        public static System.Reflection.FieldInfo GetFieldViaPath(this System.Type type, string path, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            //Ensure that both public and non-public instance fields are searched.
-            System.Reflection.BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            
             System.Type containingObjectType = type;
             System.Reflection.FieldInfo fieldInfo = containingObjectType.GetField(path, flags);
             
@@ -54,7 +52,20 @@ namespace PsigenVision.Utilities
                  * This allows for field retrievals in inherited classes. (via recursion)
                  */
                 if (fieldInfo == null)
-                    return type.BaseType != null ? GetFieldViaPath(containingObjectType.BaseType, path) : null;
+                {
+                    //Check if this is a property
+                    var propInfo = containingObjectType.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (propInfo != null)
+                    {
+                        // Wrap PropertyInfo logic or just treat as field for type traversal
+                        containingObjectType = propInfo.PropertyType;
+                        fieldInfo = null; // Properties don't have FieldInfo
+                        continue;
+                    }
+                    
+                    //Check if this is a case of polymorphism
+                    return type.BaseType != null ? GetFieldViaPath(containingObjectType.BaseType, path, flags) : null;
+                }
                 
                 //If we are not dealing with a collection (or a valid collection), return the field type of the current field info directly
                 if (!isCollection)
@@ -64,6 +75,8 @@ namespace PsigenVision.Utilities
                 }
 
                 //There are only two container field types that can be serialized: Array and List<T> - check for both
+                //In the case of a portion of the path containing an element in a collection, there is no FieldInfo for that element as reflection metadata is static and applies to type definition, not runtime data structures.
+                //The solution will be to use the FieldInfo of the collection, 
                 //Handle Arrays
                 if (fieldInfo.FieldType.IsArray)
                     //If the resolved field is an `Array`, its **element type** (`GetElementType()`) is used for further traversal
@@ -105,27 +118,34 @@ namespace PsigenVision.Utilities
             var typeStack = Array.Empty<Type>();
             var fieldNames = Array.Empty<string>();
 
-            if (!target.GetFieldMapsViaPath(type, path, ref objectStack, ref typeStack, ref fieldNames, true))
+            if (!GetFieldMapsViaPath(target, type, path, ref objectStack, ref typeStack, ref fieldNames, true))
             {
                 Debug.LogError($"Field maps cannot be derived from path {path} for object {target} of type {type}");
                 return false;
             }
 
             int currentObjectIndex = 0;
+            //Handle the special case in which the final field is itself a collection (wrapped in an IListMemberPointer)
+            bool isFinalFieldCollection = (objectStack[^1] is ListMemberPointer); 
             // Now walk back up and set each level
             for (int i = 0; i < fieldNames.Length; i++)
             {
                 //Get current child field name
                 var childFieldName = fieldNames[i];
                 var containingType = (i == fieldNames.Length - 1) ? type : typeStack[currentObjectIndex + 1]; //If we have reached the root of the fields, assign the last object to the target; otherwise chain-assign the object to the next parent field 
+                var containingObject = (i == fieldNames.Length - 1) ? target : objectStack[currentObjectIndex + 1]; //If we have reached the root of the fields, assign the last object to the target; otherwise chain-assign the object to the next parent field 
 
                 //Handle any potential collections
-                if (((i == fieldNames.Length - 1) ? target : objectStack[currentObjectIndex + 1]) //If we have reached the root of the fields, assign the last object to the target; otherwise chain-assign the object to the next parent field  
-                    is IListMemberPointer memberPointer)
+                /*Incorporate special case of final field being a collection
+                     - in that instance, when reaching the final (topmost) field, the target should NOT be the that which is checked for being a collection, 
+                        but rather, the final object in the object stack
+                */
+                if (((i == fieldNames.Length - 1 && !isFinalFieldCollection) ? target : objectStack[currentObjectIndex + 1]) //If we have reached the root of the fields, assign the last object to the target; otherwise chain-assign the object to the next parent field  
+                    is ListMemberPointer memberPointer)
                 {
                     //Set the upcoming member in the object stack to be an element of the current collection 
                     //Handle nested collections
-                    if (objectStack[currentObjectIndex] is IListMemberPointer memberPointer2)
+                    if (objectStack[currentObjectIndex] is ListMemberPointer memberPointer2)
                     {
                         memberPointer.SetValue(memberPointer2.Container);
                         currentObjectIndex++; //The element at the current object index has been handled via setting it to the member collection
@@ -141,20 +161,20 @@ namespace PsigenVision.Utilities
                     
                         //Set the current parent's field to be the collection, not the element
                         //Set child field name to correct value (collection container)
-                        SetNextObjectInStack(i, containingType, ref childFieldName, memberPointer.Container);
+                        SetNextObjectInStack(i, containingType, containingObject, ref childFieldName, memberPointer.Container);
                     }
                 }
                 else//Handle normal members
                 {
                     //Set child field to correct value (the value passed in to be assigned if the first child, which is the last in the dot-separated list, and the current object instance otherwise)
-                    SetNextObjectInStack(i, containingType, ref childFieldName, (i == 0) ? value : objectStack[currentObjectIndex]);
+                    SetNextObjectInStack(i, containingType, containingObject, ref childFieldName, (i == 0) ? value : objectStack[currentObjectIndex]);
                 }
 
                 currentObjectIndex++;
             }
             return true;
             
-            void SetNextObjectInStack(int iterationIndex, Type containingType, ref string childFieldName, object valueToAssign) => 
+            void SetNextObjectInStack(int iterationIndex, Type containingType, object containingObject, ref string childFieldName, object valueToAssign) => 
                 containingType. //The next object/type up is the parent type of the current field
                 GetField(childFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)//Get the child field of the upcoming type (off the parent object instance)
                 .SetValue((iterationIndex == fieldNames.Length - 1) ? target : objectStack[currentObjectIndex+1], //If we have reached the root of the fields, assign the last object to the target; otherwise chain-assign the object to the next parent field
@@ -270,7 +290,7 @@ namespace PsigenVision.Utilities
                 ShiftStacks(ref objectStack, ref typeStack, ref length, ref currentIndex, reversed);
                 
                 //Assign an instance of a member pointer class rather than the collection itself, as the likelihood of it being connected to its member in this process is remote, and this wrapper is needed to reconnect them
-                var collectionObject = new IListMemberPointer(fieldInfo.GetValue(currentObjInstance), fieldInfo, collectionIndex);
+                var collectionObject = new ListMemberPointer(currentObjInstance, fieldInfo, collectionIndex);
                 //Add the collection to the object and type stacks at the current index
                 objectStack[currentIndex] = currentObjInstance = collectionObject;
                 typeStack[currentIndex] = fieldInfo.FieldType;
@@ -278,12 +298,6 @@ namespace PsigenVision.Utilities
                 //Step the current index to insert the element
                 Step(ref currentIndex);
                 //currentIndex = Index(currentIndex + 1, length);
-
-                if (fieldInfo.FieldType != typeof(IList))
-                {
-                    Debug.LogError($"Field path containing indexer [{collectionIndex}] is not an implementer of IList");
-                    return Falsy(out objectStack, out typeStack, out fieldNames);
-                }
                 
                 //There are only two container field types that can be serialized: Array and List<T> - check for both
                 //Handle Arrays
@@ -296,6 +310,11 @@ namespace PsigenVision.Utilities
                 //Handle Generics
                 else if (fieldInfo.FieldType.IsGenericType)
                 {
+                    if (fieldInfo.FieldType != typeof(IList))
+                    {
+                        Debug.LogError($"Field path containing indexer [{collectionIndex}] is not an implementer of IList");
+                        return Falsy(out objectStack, out typeStack, out fieldNames);
+                    }
                     //Ensure this is a collection type (like List<T>)
                     if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(fieldInfo.FieldType))
                     {
@@ -386,16 +405,16 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <remarks>The associated collection container must be an array or implement IList
         /// </remarks>
-        public struct IListMemberPointer
+        public struct ListMemberPointer
         {
             /// <summary>
-            /// Represents an encapsulating IList or Array object to which the stored field element "points" or "is a member of."
+            /// Represents an encapsulating IList or Array object instance to which the stored field element "points" or "is a member of."
             /// </summary>
             /// <remarks>The associated collection container must be an array or implement IList
             /// </remarks>
             /// <remarks>
-            /// The <c>Container</c> property holds a reference to the encapsulated parent object
-            /// that contains the field being accessed or set via its information.
+            /// The <c>Container</c> property holds a reference to the encapsulated collection field
+            /// that contains the element being accessed or set via its information.
             /// </remarks>
             /// <value>
             /// An <see cref="System.Object"/> that represents the parent container object of the
@@ -407,15 +426,35 @@ namespace PsigenVision.Utilities
             public object Container { get; set; }
 
             /// <summary>
-            /// Gets the FieldInfo object associated with the container member, representing metadata
-            /// and functionality to access or manipulate the field's value.
+            /// Represents the instance that contains or provides the context for the collection-type field from which we are accessing the element, enabling resolution of the FieldInfo
+            /// for the collection into a concrete instance.
             /// </summary>
             /// <remarks>
-            /// This field provides access to the metadata and value of a field within a container object.
-            /// It supports operations such as retrieving or setting field values and accommodates use cases
-            /// where fields may belong to arrays or indexed collections.
+            /// The <c>Encapsulator</c> property stores a reference to the context or object in which the collection-field resides.
+            /// It provides the necessary scope or frame of reference for retrieving or modifying data.
             /// </remarks>
-            public FieldInfo Field { get; private set; }
+            /// <value>
+            /// An <see cref="System.Object"/> that acts as the encapsulating object for the field. This may represent items in a collection,
+            /// structured data, or other encapsulated contexts.
+            /// </value>
+            /// <seealso cref="System.Reflection.FieldInfo"/>
+            /// <seealso cref="System.Collections.IList"/>
+            public object Encapsulator { get; private set; }
+            
+            /// <summary>
+            /// Provides metadata about a field or property that represents a container within a complex data structure,
+            /// allowing dynamic access and modification of the data it holds.
+            /// </summary>
+            /// <remarks>
+            /// The <c>ContainerInfo</c> property is used to store information about the collection field or property,
+            /// enabling retrieval or assignment of its value within a parent object, including modification of its elements.
+            /// </remarks>
+            /// <value>
+            /// A <see cref="System.Reflection.FieldInfo"/> that encapsulates the metadata of the container field or property.
+            /// This is often used in conjunction with indexers or nested member paths for dynamic manipulation of data.
+            /// </value>
+            /// <seealso cref="System.Reflection.FieldInfo"/>
+            public FieldInfo ContainerInfo { get; private set; }
 
             /// <summary>
             /// Gets the index of the array or collection represented by <exception cref="Container"></exception> that implements <see cref="System.Collections.IList"/> or is an Array.
@@ -427,17 +466,17 @@ namespace PsigenVision.Utilities
             public int? ArrayIndex { get; private set; }
 
             /// <summary>
-            /// Gets a value indicating whether the <see cref="IListMemberPointer"/> instance is valid.
+            /// Gets a value indicating whether the <see cref="ListMemberPointer"/> instance is valid.
             /// </summary>
             /// <remarks>
-            /// The property determines if the container and field associated with the <see cref="IListMemberPointer"/>
+            /// The property determines if the container and field associated with the <see cref="ListMemberPointer"/>
             /// have been correctly initialized and if the optional array index, if present, is valid. If the property
             /// evaluates to false, operations like `GetValue`, `SetValue`, or `GetCollection` may not behave as expected.
             /// </remarks>
             public bool Valid { get; private set; }
 
             /// <summary>
-            /// Retrieves a value from a specified field or indexed collection within a container object.
+            /// Retrieves the value of the element contained in the specified indexed collection field in the context of its encapsulating object.
             /// </summary>
             /// <returns>
             /// The value of the field or the indexed element in the collection if applicable.
@@ -455,13 +494,13 @@ namespace PsigenVision.Utilities
                     return null;
                 }
                 
-                object collection = Field.GetValue(Container);
+                Container ??= ContainerInfo.GetValue(Encapsulator);
 
                 // Handle anything with an indexer (Array, List<T>, etc.)
-                if (ArrayIndex.HasValue && collection is IList list) {
+                if (ArrayIndex.HasValue && Container is IList list) {
                     return list[ArrayIndex.Value];
                 }
-                return collection;
+                return Container;
             }
 
             /// <summary>
@@ -477,13 +516,13 @@ namespace PsigenVision.Utilities
                     return;
                 }
                 
-                object collection = Field.GetValue(Container);
+                Container ??= ContainerInfo.GetValue(Encapsulator);
 
-                if (ArrayIndex.HasValue && collection is IList list) {
+                if (ArrayIndex.HasValue && Container is IList list) {
                     // This works for Arrays and List<T> perfectly
                     list[ArrayIndex.Value] = newValue;
                 } else {
-                    Field.SetValue(Container, newValue);
+                    ContainerInfo.SetValue(Encapsulator, newValue);
                 }
             }
 
@@ -501,7 +540,7 @@ namespace PsigenVision.Utilities
                     return false;
                 }
 
-                if (newIndex >= 0 && Field.GetValue(Container) is IList list && newIndex < list.Count)
+                if (newIndex >= 0 && ContainerInfo.GetValue(Encapsulator) is IList list && newIndex < list.Count)
                 {
                     ArrayIndex = newIndex;
                     return true;
@@ -521,7 +560,7 @@ namespace PsigenVision.Utilities
             /// <param name="rightOperand">The right-hand operand participating in the operation.</param>
             /// <returns>The result of the operation, of the appropriate type as defined by the operator.</returns>
             /// <remarks>Custom operators must follow established operator resolution and overloading rules in C#. Only certain operators can be overloaded, and they must follow symmetry and mathematical consistency to ensure logical behavior.</remarks>
-            public static implicit operator System.Array(IListMemberPointer pointer)
+            public static implicit operator System.Array(ListMemberPointer pointer)
             {
                 return pointer.Container as System.Array;
             }
@@ -584,8 +623,8 @@ namespace PsigenVision.Utilities
                     Debug.LogError("Invalid collection: does not implement IList and/or is not an array");
                     collection = null;
                 }
-                var col = Container as Array;
-                if (col != null) collection = col;
+
+                if (Container is Array col) collection = col;
                 else
                 {
                     Debug.LogError($"Invalid array format: '{Container}'");
@@ -594,15 +633,18 @@ namespace PsigenVision.Utilities
             }
 
             /// <summary>
-            /// Represents a pointer to a container, encapsulating information about the container object, its field, and an optional array index.
+            /// Represents a pointer to an element within a container, encapsulating information about the container object, its field,
+            /// the container's encapsulating object, and an optional array index pointing to a specific indexed element within the container.
             /// </summary>
             /// <remarks>The associated collection container must be an array or implement IList
             /// </remarks>
-            public IListMemberPointer(object container, FieldInfo field, int? arrayIndex)
+            public ListMemberPointer(object encapsulator, FieldInfo containerInfo, int? arrayIndex)
             {
+                Encapsulator = encapsulator;
+                var container = containerInfo.GetValue(encapsulator);
                 Valid = container is IList || container.GetType().IsArray;
                 Container = container;
-                Field = field;
+                ContainerInfo = containerInfo;
                 ArrayIndex = arrayIndex;
             }
         }

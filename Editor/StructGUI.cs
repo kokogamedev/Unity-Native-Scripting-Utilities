@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace PsigenVision.Utilities.Editor
@@ -104,15 +105,41 @@ namespace PsigenVision.Utilities.Editor
         /// which does not always apply modifications to fields of structs back to the instance that contains it due to value type semantics.</remarks>
         public static bool TryApplyModifiedProperty(SerializedProperty fieldProp, string fieldName, SerializedProperty outerStructProperty)
         {
+            //In the case that the outer struct property is an array element, we need to prepend the fieldName (or path) passed in with an array-access.
+            //This is because the type that will be extracted will be that of the collection rather than the element within (which is what the user intends to set)
+            if (outerStructProperty.propertyPath.EndsWith("]"))
+                fieldName = PrependArrayAccessPath(fieldName, outerStructProperty, out outerStructProperty);
+            
             //Attempt to set the boxed value of the field to an instance of the struct containing it via its path within the outer struct
-            if (!outerStructProperty.TrySetBoxedValueViaPath(outerStructProperty.GetSystemType(), fieldName, fieldProp,
+            if (outerStructProperty.TrySetBoxedValueViaPath(outerStructProperty.GetSystemType(), fieldName, fieldProp,
                     out var modifiedObject)) return false;
             
             //If the boxed value of the field was successfully set, apply the modified value to the outer struct property
             outerStructProperty.boxedValue = modifiedObject;
             return outerStructProperty.serializedObject.ApplyModifiedProperties();
         }
-        
+
+        /// <summary>
+        /// Prepends an array access segment to the given field access path to correctly address elements within arrays or lists in Unity's SerializedProperty system.
+        /// </summary>
+        /// <param name="fieldAccessPath">The original field access path to be prepended with the array access segment.</param>
+        /// <param name="previousOuterProperty">The SerializedProperty representing the containing object of the field (in this case, the array's serialized property).</param>
+        /// <param name="newOuterProperty">The updated SerializedProperty reference representing the object containing the array instance.</param>
+        /// <returns>The modified field access path with the array access segment prepended.</returns>
+        private static string PrependArrayAccessPath(string fieldAccessPath, SerializedProperty previousOuterProperty,
+            out SerializedProperty newOuterProperty)
+        {
+            var path = previousOuterProperty.propertyPath;
+            // Unity's SerializedProperty uses "Array.data" for array and list elements.
+            // Let's sanitize the path by removing those segments first.
+            path = path.Replace(".Array.data", ""); // Explicitly strip Unity's "Array.data" pattern.
+            var dotSeparations = path.Split(".");
+            //Prepend the final array-access portion of the path to the fieldName (or path)
+            fieldAccessPath = $"{dotSeparations[^1]}.{fieldAccessPath}";
+            newOuterProperty = previousOuterProperty.serializedObject.FindProperty(dotSeparations[^2]);
+            return fieldAccessPath;
+        }
+
         /// <summary>
         /// Try to apply modifications to the field of a struct to both that field and the struct instance to which it belongs
         /// via the field's modified SerializedProperty. 
