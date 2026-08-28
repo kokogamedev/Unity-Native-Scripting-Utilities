@@ -2,8 +2,9 @@
     "name": "PsigenVision.Utilities.Native.Editor",
     "rootNamespace": "",
     "references": [
-        "Dkoko002unity.Nativeunitycutilities",
-        "PsigenVision.Utilities.Native.Runtime"
+        "PsigenVision.Utilities.Native.Runtime",
+        "PsigenVision.Utilities.Core.Runtime",
+        "PsigenVision.Utilities.Core.Editor"
     ],
     "includePlatforms": [
         "Editor"

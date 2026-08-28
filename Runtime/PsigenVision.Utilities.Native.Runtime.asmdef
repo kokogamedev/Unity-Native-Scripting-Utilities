@@ -1,7 +1,9 @@
 {
     "name": "PsigenVision.Utilities.Native.Runtime",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:b0be4df77c25e5b41a5e93bb2ca59bf9"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

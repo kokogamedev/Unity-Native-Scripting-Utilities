@@ -231,3 +231,18 @@ These additions extend the Flyweight Command Pattern's support for scenarios whe
 - Accounted for unhandled case in which the root field in the dot-separated path was a collection.
 
 ---
+## [0.9.11] - 2026-08-28
+
+### **Massive Package Migration: PsigenVision Core C# Utilities**
+- Migrated the most foundational portions of this package into a new dependency package, `com.psigenvision.utilities.core` in order to (1) debloat this package, and (2) allow for more granular depenency chains for other packages to reduce dependency-bloat.
+
+#### **Migration Manifest**
+The following feature sets have been migrated to `com.psigenvision.utilities.core`:
+1. Core Utilities - _renamed to "Common Utilities"_
+2. Combinatorics Utilities
+3. Editor Utilities
+4. IO Utilities
+5. Randomization Utilities
+6. Testing Utilities
+
+---

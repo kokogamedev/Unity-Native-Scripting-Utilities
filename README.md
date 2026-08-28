@@ -128,7 +128,8 @@ Although both methods are viable, we recommend using the Github Link method as t
 ### Installation via Github Link in Unity Package Manager
 To use the utilities in your Unity project:
 
-1. Install ["com.psigenvision.utilities.native"](https://github.com/kokogamedev/Unity-Native-Scripting-Utilities.git) via Git URL or a local Unity folder.
+1. Install ["com.psigenvision.utilities.core"](https://github.com/kokogamedev/Unity-Core-Scripting-Utilities.git) as a dependency via Git URL or a local Unity folder.
+2. Install ["com.psigenvision.utilities.native"](https://github.com/kokogamedev/Unity-Native-Scripting-Utilities.git) via Git URL or a local Unity folder.
 2. Start using the utilities by including the required namespaces in your scripts. For example:
    ```c#
    using PsigenVision.Utilities.Randomization;
@@ -152,6 +153,7 @@ To use the utilities in your Unity project:
        }
      ]
      ```
+2. Install `com.psigenvision.utilities.core` and `com.psigenvision.utilities.native` in that order.
 
 ---
 

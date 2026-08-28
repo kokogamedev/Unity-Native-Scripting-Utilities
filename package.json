@@ -2,21 +2,19 @@
   "name": "com.psigenvision.utilities.native",
   "displayName": "Unity Native C# Utilities",
   "version": "0.9.10",
-  "description": "A suite of Unity C# utilities for smoother workflows—randomization, interpolation, combinatorics, low-level tools, and more!",
+  "description": "A suite of Unity C# utilities for smoother workflows\u2014animation, interpolation, low-level player loop tools, and more!",
   "author": {
     "name": "David Kokoski",
     "email": "kokogamedev@gmail.com"
   },
   "samples": [
     {
-      "displayName": "Sorted List Utils Test",
-      "description": "An example of the sorted list extension methods implemented using custom testing script.",
-      "path": "Samples~/Sorted List Example"
-    },
-    {
       "displayName": "Value Override UDT Scriptable Object",
       "description": "A scriptable object demonstrating the custom property drawers of the value override UDTs in the inspector.",
       "path": "Samples~/Value UDT Override SO"
     }
-  ]
+  ],
+  "dependencies": {
+    "com.psigenvision.utilities.core": "^0.1.0"
+  }
 }
