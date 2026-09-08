@@ -1,7 +1,7 @@
 {
   "name": "com.psigenvision.utilities.native",
   "displayName": "Unity Native C# Utilities",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "description": "A suite of Unity C# utilities for smoother workflows—animation, interpolation, low-level player loop tools, and more!",
   "author": {
     "name": "David Kokoski",
