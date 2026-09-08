@@ -246,3 +246,10 @@ The following feature sets have been migrated to `com.psigenvision.utilities.cor
 6. Testing Utilities
 
 ---
+
+## [0.9.12] - 2026-08-28
+
+### ValueOverride UDT Added Method
+- Added `EitherOr` method to all ValueOverride UDTs which returns either the override value or the default value based on a random condition.
+
+---

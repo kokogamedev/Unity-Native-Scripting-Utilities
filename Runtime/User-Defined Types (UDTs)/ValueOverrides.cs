@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using UnityEngine;
+using Random = System.Random;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -66,6 +67,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(T newDefaultValue) => defaultValue = newDefaultValue;
+
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public T EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Vector3 value with a specified override value.
@@ -167,6 +176,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Vector3 newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Vector3 EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Vector3 value with a specified override value.
@@ -267,6 +284,14 @@ namespace PsigenVision.Utilities
         public void ResetDefaultValue(Vector2 newDefaultValue) => defaultValue = newDefaultValue;
 
         /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Vector2 EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
+        
+        /// <summary>
         /// A struct that optionally overrides a given Vector2 value with a specified override value.
         /// </summary>
         public Vector2Override(bool doOverride, Vector2 defaultValue, Vector2 overrideValue)
@@ -366,6 +391,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Vector4 newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Vector4 EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Vector4 value with a specified override value.
@@ -467,6 +500,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Vector2Int newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Vector2Int EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Vector2Int value with a specified override value.
@@ -568,6 +609,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Vector3Int newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Vector3Int EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Vector3Int value with a specified override value.
@@ -669,6 +718,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Quaternion newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Quaternion EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Quaternion value with a specified override value.
@@ -770,6 +827,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(LayerMask newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public LayerMask EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given LayerMask value with a specified override value.
@@ -871,6 +936,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Color newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Color EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Color value with a specified override value.
@@ -972,6 +1045,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Rect newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Rect EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Rect value with a specified override value.
@@ -1073,6 +1154,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(RectInt newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public RectInt EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given RectInt value with a specified override value.
@@ -1174,6 +1263,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(AnimationCurve newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public AnimationCurve EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given AnimationCurve value with a specified override value.
@@ -1275,6 +1372,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Bounds newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Bounds EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Bounds value with a specified override value.
@@ -1376,6 +1481,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(BoundsInt newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public BoundsInt EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given BoundsInt value with a specified override value.
@@ -1477,6 +1590,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Gradient newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Gradient EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Gradient value with a specified override value.
@@ -1578,6 +1699,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(RenderingLayerMask newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public RenderingLayerMask EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given RenderingLayerMask value with a specified override value.
@@ -1678,6 +1807,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(float newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public float EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given float value with a specified override value.
@@ -1779,6 +1916,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(string newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public string EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given String value with a specified override value.
@@ -1879,6 +2024,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(int newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public int EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given int value with a specified override value.
@@ -1980,6 +2133,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(Hash128 newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public Hash128 EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given Hash128 value with a specified override value.
@@ -2081,6 +2242,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(char newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public char EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given char value with a specified override value.
@@ -2183,6 +2352,14 @@ namespace PsigenVision.Utilities
         /// </summary>
         /// <param name="newDefaultValue"> The new default value to be cached. </param>
         public void ResetDefaultValue(EntityId newDefaultValue) => defaultValue = newDefaultValue;
+        
+        /// <summary>
+        /// Returns either the override value or the default value based on a random condition.
+        /// </summary>
+        /// <returns>
+        /// The override value if the condition evaluates to true; otherwise, the default value.
+        /// </returns>
+        public EntityId EitherOr() => UnityEngine.Random.value > 0.5f ? overrideValue : defaultValue;
 
         /// <summary>
         /// A struct that optionally overrides a given EntityId value with a specified override value.
